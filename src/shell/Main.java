@@ -10,6 +10,8 @@ import java.awt.event.WindowEvent;
 import java.text.NumberFormat.Style;
 
 import javax.swing.*;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import javax.swing.plaf.ColorUIResource;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.MutableAttributeSet;
@@ -72,24 +74,29 @@ public class Main {
 		
 		textpane.putClientProperty("caretWidth", 5);
 		
-		MutableAttributeSet jTextPaneSet = new SimpleAttributeSet(textpane.getParagraphAttributes());
+
 
 		
 		//panel.setPreferredSize(new Dimension(largura_janela, altura_janela));
 		
 		panel.add(scrollpane, BorderLayout.CENTER);
 		
-		Action action = new AbstractAction(){
-			@Override
-			    public void actionPerformed(ActionEvent e) {
-
-			    String userInput = textpane.getText();
-			    boolean enterPressed = true;
-			    textpane.setText("");
-			    //call next method;
-
-			    }
-			};
 		
+		CaretListener caret_listener = new CaretListener() {
+			@Override
+			public void caretUpdate(CaretEvent e) {
+				System.out.println("Caret atualizado");
+				
+			}
+	    };
+	    
+	    textpane.addCaretListener(caret_listener);
+	    
 	}
+	
+	public static void fireInputChanged (String texto) {
+		System.out.println("Mudou o texto");
+	}
+
 }
+
