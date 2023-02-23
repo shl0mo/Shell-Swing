@@ -174,10 +174,21 @@ public class Main {
 		        				} else {
 		        					String nome_arquivo = comandos.get(1);
 		        					Runtime r = Runtime.getRuntime();
-		        					Process p = r.exec("notepad arquivo.txt");
+		        					Process p = r.exec("cmd mkdir paaasta");
+		        					p.waitFor();
+		        					//BufferedReader b = new BufferedReader(new InputStreamReader(p.getInputStream()));
+		        					//String line = "";
+
+		        					/*while ((line = b.readLine()) != null) {
+		        					  System.out.println(line);
+		        					}
+
+		        					b.close();*/
 		        				}
 		        			} else if (comandos.get(0).equals("clear")) { // Comando clear
 		        				textpane.setText("");
+		        			} else if (comandos.get(0).equals("exit")) {
+		        				frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
 		        			}
 		        		}
 	        			adicionaPath(textpane);
@@ -186,6 +197,9 @@ public class Main {
 	        	} catch (BadLocationException e) {
 	        		e.printStackTrace();
 	        	} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
