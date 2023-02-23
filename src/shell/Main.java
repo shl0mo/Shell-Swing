@@ -2,9 +2,13 @@ package shell;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.KeyboardFocusManager;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
@@ -13,6 +17,9 @@ import java.io.InputStreamReader;
 import java.text.NumberFormat.Style;
 import java.util.ArrayList;
 import java.util.Set;
+import java.awt.event.KeyEvent;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
@@ -121,6 +128,8 @@ public class Main {
 		}
 		return nova_string;
 	}
+
+
 	
 	public static void highlight() {
 
@@ -130,6 +139,12 @@ public class Main {
 	        	String comando = textpane.getText();
 	        	String array_comando[] = comando.split("");
 	        	try {
+	        		// O caret não pode ser movido para a linha acima e nem para o campo em que o path se localiza
+	        		int numero_linhas = comando.split("\n").length;
+	        		if (textpane.getCaretPosition() < 42 * numero_linhas + numero_linhas) {
+	        			int nova_posicao = 42 * numero_linhas + numero_linhas - 1;
+	        			if (comando.length() >= nova_posicao) textpane.setCaretPosition(nova_posicao);
+	        		}
 	        		// O usuário não pode apagar o caminho do diretório em que ele se encontra que é mostrado no terminal
 	        		if (comando.length() < 42) {
 	        			textpane.setText("");
@@ -179,14 +194,23 @@ public class Main {
 	    SwingUtilities.invokeLater(doHighlight);
 	}
 	
-	class HighLight implements Runnable{
+	
+	public class Keyboard {
+	    private static final Map<Integer, Boolean> pressedKeys = new HashMap<>();
 
-		@Override
-		public void run() {
-			// TODO Auto-generated method stub
-			
-		}
-		
+	    static {
+	        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(event -> {
+	            synchronized (Keyboard.class) {
+	                if (event.getID() == KeyEvent.KEY_PRESSED) pressedKeys.put(event.getKeyCode(), true);
+	                else if (event.getID() == KeyEvent.KEY_RELEASED) pressedKeys.put(event.getKeyCode(), false);
+	                return false;
+	            }
+	        });
+	    }
+
+	    public static boolean isKeyPressed(int keyCode) { // Any key code from the KeyEvent class
+	        return pressedKeys.getOrDefault(keyCode, false);
+	    }
 	}
 }
 
