@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.text.NumberFormat.Style;
+import java.util.Set;
 
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
@@ -46,9 +47,7 @@ public class Main {
 		CaretListener caret_listener = new CaretListener() {
 			@Override
 			public void caretUpdate(CaretEvent caretEvent) {
-				if (textpane.getText().length() < 42) {
-					highlight();
-				}				 
+				highlight();
 			}
 	    };
 	    
@@ -109,15 +108,28 @@ public class Main {
 	        @Override
 	        public void run() {
 	        	try {
-	        		textpane.setText("");
-					adicionaPath(textpane);
-					adicionaCaret(textpane);
-				} catch (BadLocationException e) {
-					e.printStackTrace();
-				}
+	        		if (textpane.getText().length() < 42) {
+		        		textpane.setText("");
+		        		adicionaPath(textpane);
+		        		adicionaCaret(textpane);
+	        		}
+	        	} catch (BadLocationException e) {
+	        		e.printStackTrace();
+	        	}
+	        	Thread.currentThread().interrupt();
 	        }
 	    };       
 	    SwingUtilities.invokeLater(doHighlight);
+	}
+	
+	class HighLight implements Runnable{
+
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			
+		}
+		
 	}
 }
 
