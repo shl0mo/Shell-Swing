@@ -176,6 +176,8 @@ public class Main {
 		        					Runtime r = Runtime.getRuntime();
 		        					Process p = r.exec("notepad arquivo.txt");
 		        				}
+		        			} else if (comandos.get(0).equals("clear")) { // Comando clear
+		        				textpane.setText("");
 		        			}
 		        		}
 	        			adicionaPath(textpane);
