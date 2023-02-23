@@ -7,7 +7,11 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.NumberFormat.Style;
+import java.util.ArrayList;
 import java.util.Set;
 
 import javax.swing.*;
@@ -102,20 +106,73 @@ public class Main {
 		textpane.putClientProperty("caretWidth", 5);
 	}
 	
+	public static void adicionaMensagem (JTextPane textpane, String mensagem) throws BadLocationException {
+		StyledDocument doc = textpane.getStyledDocument();
+		javax.swing.text.Style texto_branco = textpane.addStyle("", null);
+	    StyleConstants.setForeground(texto_branco, Color.WHITE);
+	    doc.insertString(doc.getLength(), mensagem, texto_branco);
+	}
+	
+	public static String removeEnter (String string) {
+		String nova_string = "";
+		String array_string[] = string.split("");
+		for (int i = 0; i < string.length() - 1; i++) {
+			nova_string = nova_string + array_string[i];
+		}
+		return nova_string;
+	}
+	
 	public static void highlight() {
 
 	    Runnable doHighlight = new Runnable() {
 	        @Override
 	        public void run() {
+	        	String comando = textpane.getText();
+	        	String array_comando[] = comando.split("");
 	        	try {
-	        		if (textpane.getText().length() < 42) {
-		        		textpane.setText("");
-		        		adicionaPath(textpane);
-		        		adicionaCaret(textpane);
+	        		// O usuário não pode apagar o caminho do diretório em que ele se encontra que é mostrado no terminal
+	        		if (comando.length() < 42) {
+	        			textpane.setText("");
+	        			adicionaPath(textpane);
+	        			adicionaCaret(textpane);
+	        		}
+	        		// Se o usuário pressionar enter, a nova linha irá exibir o caminho do diretório em que ele se encontra, assim como a linha acima
+	        		if (array_comando[comando.length() - 1].equals("\n")) {
+	        			array_comando = comando.split("\n");
+		        		String ultima_linha = array_comando[array_comando.length - 1];
+		        		String array_ultima_linha[] = ultima_linha.split(" ");
+		        		ArrayList<String> comandos = new ArrayList<>();
+		        		for (int i = 2; i < array_ultima_linha.length; i++) {
+		        			if (!array_ultima_linha[i].equals("")) {
+		        				if (i == array_ultima_linha.length - 1) comandos.add(removeEnter(array_ultima_linha[i]));
+		        				else comandos.add(array_ultima_linha[i]);
+		        			}
+		        		}
+		        		System.out.println(comandos.toString());
+		        		if (comandos.size() > 0) { // Caso algum comando tenha sido executado
+			        		// Interpretação e execução do comando de criar arquivos - touch
+		        			if (comandos.get(0).equals("touch")) {
+		        				if (comandos.size() == 1) {
+		        					adicionaMensagem(textpane, "Para criar um arquivo com o comando touch, o nome do arquivo deve ser passado como parâmetro\n");
+		        				} else if (comandos.size() > 2) {
+		        					adicionaMensagem(textpane, "O comando touch recebe apenas um argumento\n");
+		        				} else {
+		        					String nome_arquivo = comandos.get(1);
+		        					Runtime r = Runtime.getRuntime();
+		        					Process p = r.exec("notepad arquivo.txt");
+		        				}
+		        			}
+		        		}
+	        			adicionaPath(textpane);
+	        			adicionaCaret(textpane);
 	        		}
 	        	} catch (BadLocationException e) {
 	        		e.printStackTrace();
-	        	}
+	        	} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	        	//System.out.println(textpane.getText());
 	        	Thread.currentThread().interrupt();
 	        }
 	    };       
