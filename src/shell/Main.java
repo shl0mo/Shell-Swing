@@ -13,6 +13,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.NumberFormat.Style;
@@ -202,13 +203,34 @@ public class Main {
 		        				}
 		        			} else if (comandos.get(0).equals("touch")) {
 		        				if (comandos.size() == 1) {
-		        					adicionaMensagem(textpane, "Para criar um arquivo com o comando touch, o nome do arquivo deve ser passado como parâmetro\n");
+		        					adicionaMensagem(textpane, "O nome do arquivo deve ser passado como parâmetro\n");
 		        				} else if (comandos.size() > 2) {
 		        					adicionaMensagem(textpane, "O comando touch recebe apenas um argumento\n");
 		        				} else {
 		        					String nome_novo_arquivo = comandos.get(1);
 		        					File novo_arquivo = new File(nome_novo_arquivo);
 		        					novo_arquivo.createNewFile();
+		        				}
+		        			} else if (comandos.get(0).equals("cat")) {
+		        				if (comandos.size() == 1) {
+		        					adicionaMensagem(textpane, "O nome do arquivo deve ser passado como parâmetro\n");
+		        				} else if (comandos.size() == 2) {
+		        					boolean arquivo_encontrado = true;
+		        					String nome_arquivo = comandos.get(1);
+		        					BufferedReader br = null;
+		        					try {
+		        						br = new BufferedReader(new FileReader(new File(nome_arquivo).getAbsolutePath()));
+		        					} catch (Exception e) {
+		        						adicionaMensagem(textpane, "Arquivo não encontrado\n");
+		        						arquivo_encontrado = false;
+		        					}
+		        					if (arquivo_encontrado) {
+		        						String conteudo_arquivo = "";
+			        					while (br.ready()) {
+			        						conteudo_arquivo = conteudo_arquivo + br.readLine() + "\n";
+			        					}
+			        					textpane.setText(textpane.getText() + conteudo_arquivo);
+		        					}
 		        				}
 		        			} else if (comandos.get(0).equals("clear")) { // Comando clear
 		        				textpane.setText("");
