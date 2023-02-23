@@ -187,7 +187,6 @@ public class Main {
 		        				if (comandos.size() == 1) {
 		        					String string_listagem = "";
 		        					Set<String> set_arquivos = listaArquivos(System.getProperty("user.dir"));
-		        					System.out.println("size " + set_arquivos.size());
 		        					for (String nome_arquivo: set_arquivos) {
 		        						if (!(nome_arquivo.charAt(0) == '.')) string_listagem = string_listagem + nome_arquivo + "\n";
 		        					}
@@ -199,7 +198,6 @@ public class Main {
 		        					for (String nome_arquivo: set_arquivos) {
 		        						string_listagem = string_listagem + nome_arquivo + "\n";
 		        					}
-		        					System.out.println(string_listagem);
 		        					textpane.setText(textpane.getText() + string_listagem);
 		        				}
 		        			} else if (comandos.get(0).equals("touch")) {
@@ -209,15 +207,15 @@ public class Main {
 		        					adicionaMensagem(textpane, "O comando touch recebe apenas um argumento\n");
 		        				} else {
 		        					String nome_novo_arquivo = comandos.get(1);
-		        					Set<String> set_arquivos = listaArquivos(System.getProperty("user.dir"));
-		        					for (String nome_arquivo: set_arquivos) {
-		        						System.out.println(nome_arquivo);
-		        					}
+		        					File novo_arquivo = new File(nome_novo_arquivo);
+		        					novo_arquivo.createNewFile();
 		        				}
 		        			} else if (comandos.get(0).equals("clear")) { // Comando clear
 		        				textpane.setText("");
 		        			} else if (comandos.get(0).equals("exit")) {
 		        				frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+		        			} else {
+		        				adicionaMensagem(textpane, "Comando inválido\n");
 		        			}
 		        		}
 	        			adicionaPath(textpane);
@@ -225,8 +223,10 @@ public class Main {
 	        		}
 	        	} catch (BadLocationException e) {
 	        		e.printStackTrace();
-	        	}
-	        	//System.out.println(textpane.getText());
+	        	} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 	        	Thread.currentThread().interrupt();
 	        }
 	    };       
