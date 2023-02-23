@@ -12,13 +12,17 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.NumberFormat.Style;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.awt.event.KeyEvent;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import javax.swing.*;
@@ -128,6 +132,19 @@ public class Main {
 		}
 		return nova_string;
 	}
+	
+	public static Set<String> listaArquivos(String dir) {
+		File file = new File(dir);
+		File[] arquivos = file.listFiles();
+		Set<String> set_arquivos = new HashSet<String>();
+		if (arquivos.length > 0) {
+			for (File arquivo: arquivos) {
+				if (arquivo.isDirectory()) set_arquivos.add(arquivo.getName() + "/");
+				else set_arquivos.add(arquivo.getName());
+			}
+		}
+		return set_arquivos;
+	}
 
 
 	
@@ -166,24 +183,36 @@ public class Main {
 		        		System.out.println(comandos.toString());
 		        		if (comandos.size() > 0) { // Caso algum comando tenha sido executado
 			        		// Interpretação e execução do comando de criar arquivos - touch
-		        			if (comandos.get(0).equals("touch")) {
+		        			if (comandos.get(0).equals("ls")) {
+		        				if (comandos.size() == 1) {
+		        					String string_listagem = "";
+		        					Set<String> set_arquivos = listaArquivos(System.getProperty("user.dir"));
+		        					System.out.println("size " + set_arquivos.size());
+		        					for (String nome_arquivo: set_arquivos) {
+		        						if (!(nome_arquivo.charAt(0) == '.')) string_listagem = string_listagem + nome_arquivo + "\n";
+		        					}
+		        					System.out.println(string_listagem);
+		        					textpane.setText(textpane.getText() + string_listagem);
+		        				} else if (comandos.size() == 2 && comandos.get(1).equals("-a")) {
+		        					String string_listagem = "";
+		        					Set<String> set_arquivos = listaArquivos(System.getProperty("user.dir"));
+		        					for (String nome_arquivo: set_arquivos) {
+		        						string_listagem = string_listagem + nome_arquivo + "\n";
+		        					}
+		        					System.out.println(string_listagem);
+		        					textpane.setText(textpane.getText() + string_listagem);
+		        				}
+		        			} else if (comandos.get(0).equals("touch")) {
 		        				if (comandos.size() == 1) {
 		        					adicionaMensagem(textpane, "Para criar um arquivo com o comando touch, o nome do arquivo deve ser passado como parâmetro\n");
 		        				} else if (comandos.size() > 2) {
 		        					adicionaMensagem(textpane, "O comando touch recebe apenas um argumento\n");
 		        				} else {
-		        					String nome_arquivo = comandos.get(1);
-		        					Runtime r = Runtime.getRuntime();
-		        					Process p = r.exec("cmd mkdir paaasta");
-		        					p.waitFor();
-		        					//BufferedReader b = new BufferedReader(new InputStreamReader(p.getInputStream()));
-		        					//String line = "";
-
-		        					/*while ((line = b.readLine()) != null) {
-		        					  System.out.println(line);
+		        					String nome_novo_arquivo = comandos.get(1);
+		        					Set<String> set_arquivos = listaArquivos(System.getProperty("user.dir"));
+		        					for (String nome_arquivo: set_arquivos) {
+		        						System.out.println(nome_arquivo);
 		        					}
-
-		        					b.close();*/
 		        				}
 		        			} else if (comandos.get(0).equals("clear")) { // Comando clear
 		        				textpane.setText("");
@@ -196,13 +225,7 @@ public class Main {
 	        		}
 	        	} catch (BadLocationException e) {
 	        		e.printStackTrace();
-	        	} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+	        	}
 	        	//System.out.println(textpane.getText());
 	        	Thread.currentThread().interrupt();
 	        }
