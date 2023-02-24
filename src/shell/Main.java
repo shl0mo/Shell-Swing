@@ -16,6 +16,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.NumberFormat.Style;
 import java.util.ArrayList;
 import java.util.Set;
@@ -241,8 +244,21 @@ public class Main {
 			        					String array_diretorio[] = diretorio.split(contrabarra);
 			        					array_diretorio[array_diretorio.length - 1] = "";
 			        					diretorio = String.join(contrabarra, array_diretorio);
+			        				} else {
+			        					if (set_diretorios.contains(novo_dir)) {
+			        						diretorio = diretorio + "/" + novo_dir;
+			        					} else {
+			        						File dir = new File(novo_dir).getAbsoluteFile();
+			        						boolean dir_existe = false;
+			        				        if (dir.exists() || dir.mkdirs())
+			        				        {
+			        				            dir_existe = (System.setProperty("user.dir", dir.getAbsolutePath()) != null);
+			        				        }
+			        				        System.out.println(dir_existe);
+			        				        
+			        					}
 			        				}
-			        				adicionaMensagem(textpane, set_diretorios.toString() + "\n");
+			        				//adicionaMensagem(textpane, set_diretorios.toString() + " " + novo_dir + "\n");
 		        				}
 		        			} else if (comandos.get(0).equals("touch")) {
 		        				if (comandos.size() == 1) {
