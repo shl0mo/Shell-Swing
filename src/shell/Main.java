@@ -251,7 +251,7 @@ public class Main {
 		        					adicionaMensagem(textpane, "O comando touch recebe apenas um argumento\n");
 		        				} else {
 		        					String nome_novo_arquivo = comandos.get(1);
-		        					File novo_arquivo = new File(nome_novo_arquivo);
+		        					File novo_arquivo = new File(diretorio + nome_novo_arquivo);
 		        					novo_arquivo.createNewFile();
 		        				}
 		        			} else if (comandos.get(0).equals("cat")) {
