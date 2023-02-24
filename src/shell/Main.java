@@ -190,7 +190,7 @@ public class Main {
 	        			adicionaCaret(textpane);
 	        		}
 	        		// Se o usuário pressionar enter, a nova linha irá exibir o caminho do diretório em que ele se encontra, assim como a linha acima
-	        		if (array_comando[comando.length() - 1].equals("\n")) {
+	        		if (comando.charAt(comando.length() - 1) == '\n') {
 	        			array_comando = comando.split("\n");
 		        		String ultima_linha = array_comando[array_comando.length - 1];
 		        		String array_ultima_linha[] = ultima_linha.split(" ");
