@@ -42,6 +42,9 @@ public class Main {
 	static JTextPane textpane;
 	static int largura_janela = 800;
 	static int altura_janela = 500;
+	static String diretorio = System.getProperty("user.dir");
+	static String contrabarra = "\\";
+	static String barra = "/";
 	
 	public static void main (String [] args) throws BadLocationException {
 		frame = new JFrame("Shell");
@@ -55,7 +58,6 @@ public class Main {
 		
 		textpane = criaTextPane(largura_janela, altura_janela);
 		JScrollPane scrollpane = criaScrollPane(textpane, largura_janela, altura_janela);
-		
 		
 		panel.add(scrollpane, BorderLayout.CENTER);
 		
@@ -100,7 +102,7 @@ public class Main {
 		StyledDocument doc = textpane.getStyledDocument();
 	    javax.swing.text.Style texto_verde = textpane.addStyle("", null);
 	    StyleConstants.setForeground(texto_verde, Color.GREEN);
-	    doc.insertString(doc.getLength(), System.getProperty("user.dir"), texto_verde);
+	    doc.insertString(doc.getLength(), diretorio, texto_verde);
 	    
 	    doc = textpane.getStyledDocument();
 	    javax.swing.text.Style texto_amarelo = textpane.addStyle("", null);
@@ -146,6 +148,18 @@ public class Main {
 		}
 		return set_arquivos;
 	}
+	
+	public static Set<String> listaDiretorios (String dir) {
+		File file = new File(dir);
+		File[] diretorios = file.listFiles();
+		Set<String> set_diretorios = new HashSet<String>();
+		if (diretorios.length > 0) {
+			for (File arquivo: diretorios) {
+				if (arquivo.isDirectory()) set_diretorios.add(arquivo.getName());
+			}
+		}
+		return set_diretorios;
+	}
 
 
 	
@@ -181,13 +195,18 @@ public class Main {
 		        				else comandos.add(array_ultima_linha[i]);
 		        			}
 		        		}
+		        		ArrayList<String> novos_comandos = new ArrayList<>();
+		        		for (String cmd: comandos) {
+		        			if (!cmd.equals("\n") && !(cmd.length() == 0)) novos_comandos.add(cmd);
+		        		}
+		        		comandos = novos_comandos;
 		        		System.out.println(comandos.toString());
 		        		if (comandos.size() > 0) { // Caso algum comando tenha sido executado
 			        		// Interpretação e execução do comando de criar arquivos - touch
 		        			if (comandos.get(0).equals("ls")) {
 		        				if (comandos.size() == 1) {
 		        					String string_listagem = "";
-		        					Set<String> set_arquivos = listaArquivos(System.getProperty("user.dir"));
+		        					Set<String> set_arquivos = listaArquivos(diretorio);
 		        					for (String nome_arquivo: set_arquivos) {
 		        						if (!(nome_arquivo.charAt(0) == '.')) string_listagem = string_listagem + nome_arquivo + "\n";
 		        					}
@@ -195,11 +214,27 @@ public class Main {
 		        					textpane.setText(textpane.getText() + string_listagem);
 		        				} else if (comandos.size() == 2 && comandos.get(1).equals("-a")) {
 		        					String string_listagem = "";
-		        					Set<String> set_arquivos = listaArquivos(System.getProperty("user.dir"));
+		        					Set<String> set_arquivos = listaArquivos(diretorio);
 		        					for (String nome_arquivo: set_arquivos) {
 		        						string_listagem = string_listagem + nome_arquivo + "\n";
 		        					}
 		        					textpane.setText(textpane.getText() + string_listagem);
+		        				}
+		        			} else if (comandos.get(0).equals("cd")) {
+		        				if (comandos.size() == 1) {
+		        					adicionaMensagem(textpane, "Especifique o caminho\n");
+		        				} else if (comandos.size() > 2) {
+		        					adicionaMensagem(textpane, "O comando suporta apenas um parâmetro\n");
+		        				}
+		        				if (comandos.size() > 1) {
+			        				String novo_dir = comandos.get(1);
+			        				Set<String> set_diretorios = listaDiretorios(diretorio);
+			        				if (novo_dir.equals("..")) {
+			        					String array_diretorio[] = diretorio.split(contrabarra);
+			        					array_diretorio[array_diretorio.length - 1] = "";
+			        					diretorio = String.join(contrabarra, array_diretorio);
+			        				}
+			        				adicionaMensagem(textpane, set_diretorios.toString() + "\n");
 		        				}
 		        			} else if (comandos.get(0).equals("touch")) {
 		        				if (comandos.size() == 1) {
