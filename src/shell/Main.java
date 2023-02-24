@@ -49,6 +49,7 @@ public class Main {
 	static int posicao_inicial_caret;
 	
 	public static void main (String [] args) throws BadLocationException {
+		contrabarra = barra;
 		frame = new JFrame("Shell");
 		frame.setBounds(0, 0, largura_janela, altura_janela);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -194,10 +195,11 @@ public class Main {
 	        			array_comando = comando.split("\n");
 		        		String ultima_linha = array_comando[array_comando.length - 1];
 		        		String array_ultima_linha[] = ultima_linha.split(" ");
+		        		System.out.println(array_ultima_linha[array_ultima_linha.length - 1]);
 		        		ArrayList<String> comandos = new ArrayList<>();
 		        		for (int i = 2; i < array_ultima_linha.length; i++) {
 		        			if (!array_ultima_linha[i].equals("")) {
-		        				if (i == array_ultima_linha.length - 1) comandos.add(removeEnter(array_ultima_linha[i]));
+		        				if (i == array_ultima_linha.length - 1) comandos.add(array_ultima_linha[i].replace("\n", ""));
 		        				else comandos.add(array_ultima_linha[i]);
 		        			}
 		        		}
