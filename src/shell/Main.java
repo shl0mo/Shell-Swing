@@ -45,6 +45,8 @@ public class Main {
 	static String diretorio = System.getProperty("user.dir");
 	static String contrabarra = "\\";
 	static String barra = "/";
+	static boolean posicao_caret_setada;
+	static int posicao_inicial_caret;
 	
 	public static void main (String [] args) throws BadLocationException {
 		frame = new JFrame("Shell");
@@ -168,17 +170,21 @@ public class Main {
 	    Runnable doHighlight = new Runnable() {
 	        @Override
 	        public void run() {
+	        	if (!posicao_caret_setada) {
+	        		posicao_inicial_caret = textpane.getCaretPosition();
+	        		posicao_caret_setada = true;
+	        	}
 	        	String comando = textpane.getText();
 	        	String array_comando[] = comando.split("");
 	        	try {
 	        		// O caret não pode ser movido para a linha acima e nem para o campo em que o path se localiza
 	        		int numero_linhas = comando.split("\n").length;
-	        		if (textpane.getCaretPosition() < 42 * numero_linhas + numero_linhas) {
-	        			int nova_posicao = 42 * numero_linhas + numero_linhas - 1;
+	        		if (textpane.getCaretPosition() < posicao_inicial_caret * numero_linhas + numero_linhas) {
+	        			int nova_posicao = posicao_inicial_caret * numero_linhas + numero_linhas - 1;
 	        			if (comando.length() >= nova_posicao) textpane.setCaretPosition(nova_posicao);
 	        		}
 	        		// O usuário não pode apagar o caminho do diretório em que ele se encontra que é mostrado no terminal
-	        		if (comando.length() < 42) {
+	        		if (comando.length() < posicao_inicial_caret) {
 	        			textpane.setText("");
 	        			adicionaPath(textpane);
 	        			adicionaCaret(textpane);
