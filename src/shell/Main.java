@@ -172,6 +172,14 @@ public class Main {
 		return set_arquivos;
 	}
 
+	public static ArrayList<String> criaListaDiretorios (String caminho) {
+		String array_caminho[] = caminho.split("/");
+		ArrayList<String> lista_diretorios = new ArrayList<>();
+		if (caminho.charAt(0) == '/') lista_diretorios.add("/");
+		for (String dir : array_caminho) lista_diretorios.add(dir);
+		return lista_diretorios;
+	}
+
 	public static boolean cd (ArrayList<String> lista_diretorios, String diretorio_atual, boolean verifica_arquivo) throws BadLocationException {
 		if (lista_diretorios.size() == 0) return false;
 		if (verifica_arquivo) {
@@ -310,14 +318,18 @@ public class Main {
 								adicionaMensagem(textpane, "O comando suporta apenas um parâmetro\n");
 							}
 							if (comandos.size() > 1) {
-								String array_caminho[] = comandos.get(1).split("/");
-								ArrayList<String> lista_diretorios = new ArrayList<>();
-								if (comandos.get(1).charAt(0) == '/') lista_diretorios.add("/");
-								for (String dir : array_caminho) lista_diretorios.add(dir);
-								String diretorio_atual = diretorio;	
+								String caminho = comandos.get(1);
+								ArrayList<String> lista_diretorios = criaListaDiretorios(caminho);
 								cd(lista_diretorios, diretorio, false);
 							}
-		        			} else if (comandos.get(0).equals("touch")) {
+		        			} else if (comandos.get(0).equals("cp")) {
+							if (comandos.size() <= 2) {
+								adicionaMensagem(textpane, "Especifique ambos o arquivo e o diretório de origem\n");
+							}
+							String array_arquivo[] = comandos.get(1).split("/");
+							String array_diretorio[] = comandos.get(2).split("/");
+							//boolean arquivo_existe = cd();
+						} else if (comandos.get(0).equals("touch")) {
 		        				if (comandos.size() == 1) {
 		        					adicionaMensagem(textpane, "O nome do arquivo deve ser passado como parâmetro\n");
 		        				} else if (comandos.size() > 2) {
