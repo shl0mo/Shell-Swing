@@ -230,6 +230,7 @@ public class Main {
 	}
 
 	public static String cat (String nome_ou_caminho_arquivo) throws BadLocationException, IOException {
+		if (!nome_ou_caminho_arquivo.contains("/")) nome_ou_caminho_arquivo = diretorio + "/" + nome_ou_caminho_arquivo;
 		if (nome_ou_caminho_arquivo.charAt(0) == '~') nome_ou_caminho_arquivo = String.join("/home/" + System.getProperty("user.name") + "/", nome_ou_caminho_arquivo.split("~"));
 		boolean arquivo_encontrado = true;
 		BufferedReader br = null;
@@ -360,7 +361,6 @@ public class Main {
 		        					adicionaMensagem(textpane, "O nome do arquivo deve ser passado como parâmetro\n");
 		        				} else if (comandos.size() == 2) {
 								String nome_ou_caminho_arquivo = comandos.get(1);
-								if (!nome_ou_caminho_arquivo.contains("/")) nome_ou_caminho_arquivo = diretorio + "/" + nome_ou_caminho_arquivo;
 								ArrayList<String> lista_arquivo = criaListaDiretorios(nome_ou_caminho_arquivo);
 								String diretorio_atual = diretorio;
 								cd(lista_arquivo, diretorio, true);
