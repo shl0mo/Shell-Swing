@@ -45,8 +45,6 @@ public class Main {
 	static int largura_janela = 800;
 	static int altura_janela = 500;
 	static String diretorio = System.getProperty("user.dir");
-	static boolean posicao_caret_setada;
-	static int posicao_inicial_caret;
 	
 	public static void main (String [] args) throws BadLocationException {
 		frame = new JFrame("Shell");
@@ -249,21 +247,20 @@ public class Main {
 	    Runnable doHighlight = new Runnable() {
 	        @Override
 	        public void run() {
-	        	if (!posicao_caret_setada) {
-	        		posicao_inicial_caret = textpane.getCaretPosition();
-	        		posicao_caret_setada = true;
-	        	}
 	        	String comando = textpane.getText();
 	        	String array_comando[] = comando.split("");
 	        	try {
 	        		// O caret não pode ser movido para a linha acima e nem para o campo em que o path se localiza
 	        		int numero_linhas = comando.split("\n").length;
-	        		if (textpane.getCaretPosition() < posicao_inicial_caret * numero_linhas + numero_linhas) {
-	        			int nova_posicao = posicao_inicial_caret * numero_linhas + numero_linhas - 1;
-	        			if (comando.length() >= nova_posicao) textpane.setCaretPosition(nova_posicao);
-	        		}
+				int posicao_caret = 0;
+				String array_linhas[] = comando.split("\n");
+				for (int i = 0; i < array_linhas.length - 1; i++) {
+					posicao_caret = posicao_caret + array_linhas[i].length();
+				}
+				posicao_caret = posicao_caret + diretorio.length() + 3 + numero_linhas;
+	        		if (textpane.getCaretPosition() < posicao_caret) textpane.setCaretPosition(posicao_caret);
 	        		// O usuário não pode apagar o caminho do diretório em que ele se encontra que é mostrado no terminal
-	        		if (comando.length() < posicao_inicial_caret) {
+	        		if (comando.length() < posicao_caret) {
 	        			textpane.setText("");
 	        			adicionaPath(textpane);
 	        			adicionaCaret(textpane);
@@ -317,15 +314,8 @@ public class Main {
 								ArrayList<String> lista_diretorios = new ArrayList<>();
 								if (comandos.get(1).charAt(0) == '/') lista_diretorios.add("/");
 								for (String dir : array_caminho) lista_diretorios.add(dir);
-								String diretorio_atual = diretorio;
-								cd(lista_diretorios, diretorio, true);
-								boolean arquivo_existe = cd(lista_diretorios, diretorio, true);
-								if (arquivo_existe) {
-									adicionaMensagem(textpane, "Arquivo existe\n");
-								} else {
-									adicionaMensagem(textpane, "Arquivo não existe\n");
-								}
-								diretorio = diretorio_atual;
+								String diretorio_atual = diretorio;	
+								cd(lista_diretorios, diretorio, false);
 							}
 		        			} else if (comandos.get(0).equals("touch")) {
 		        				if (comandos.size() == 1) {
