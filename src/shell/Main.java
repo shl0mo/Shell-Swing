@@ -198,7 +198,11 @@ public class Main {
 		} else if (novo_dir.equals("..") || novo_dir.equals("../")) {
 			String array_diretorio[] = diretorio.split("/");
 			array_diretorio[array_diretorio.length - 1] = "";
-			diretorio = String.join("/", array_diretorio);
+			diretorio = "";
+			for (int i = 0; i < array_diretorio.length; ++i) {
+				if (i != 0 && i != array_diretorio.length - 1) diretorio = diretorio + "/";
+				diretorio = diretorio + array_diretorio[i];
+			}
 			lista_diretorios.remove(0);
 			return cd(lista_diretorios, diretorio_atual, verifica_arquivo);
 		} else if (novo_dir.equals("/")) {
