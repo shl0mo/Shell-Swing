@@ -19,7 +19,6 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-//import java.text.NumberFormat.Style;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -46,13 +45,10 @@ public class Main {
 	static int largura_janela = 800;
 	static int altura_janela = 500;
 	static String diretorio = System.getProperty("user.dir");
-	static String contrabarra = "\\";
-	static String barra = "/";
 	static boolean posicao_caret_setada;
 	static int posicao_inicial_caret;
 	
 	public static void main (String [] args) throws BadLocationException {
-		contrabarra = barra;
 		frame = new JFrame("Shell");
 		frame.setBounds(0, 0, largura_janela, altura_janela);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -106,31 +102,30 @@ public class Main {
 	
 	public static void adicionaPath (JTextPane textpane) throws BadLocationException {
 		StyledDocument doc = textpane.getStyledDocument();
-	    javax.swing.text.Style texto_verde = textpane.addStyle("", null);
-	    StyleConstants.setForeground(texto_verde, Color.GREEN);
-	    doc.insertString(doc.getLength(), diretorio, texto_verde);
-	    
-	    doc = textpane.getStyledDocument();
-	    javax.swing.text.Style texto_amarelo = textpane.addStyle("", null);
-	    StyleConstants.setForeground(texto_amarelo, Color.YELLOW);
-	    doc.insertString(doc.getLength(), " ~$", texto_amarelo);
+		javax.swing.text.Style texto_verde = textpane.addStyle("", null);
+		StyleConstants.setForeground(texto_verde, Color.GREEN);
+		doc.insertString(doc.getLength(), diretorio, texto_verde);
+	    	doc = textpane.getStyledDocument();
+		javax.swing.text.Style texto_amarelo = textpane.addStyle("", null);
+		StyleConstants.setForeground(texto_amarelo, Color.YELLOW);
+		doc.insertString(doc.getLength(), " ~$", texto_amarelo);
 	}
 	
 	
 	public static void adicionaCaret (JTextPane textpane) throws BadLocationException {
 		textpane.setCaretColor(Color.WHITE);		
 		StyledDocument doc = textpane.getStyledDocument();
-	    javax.swing.text.Style texto_branco = textpane.addStyle("", null);
-	    StyleConstants.setForeground(texto_branco, Color.WHITE);
-	    doc.insertString(doc.getLength(), " ", texto_branco);
+	    	javax.swing.text.Style texto_branco = textpane.addStyle("", null);
+	    	StyleConstants.setForeground(texto_branco, Color.WHITE);
+		doc.insertString(doc.getLength(), " ", texto_branco);
 		textpane.putClientProperty("caretWidth", 5);
 	}
 	
 	public static void adicionaMensagem (JTextPane textpane, String mensagem) throws BadLocationException {
 		StyledDocument doc = textpane.getStyledDocument();
 		javax.swing.text.Style texto_branco = textpane.addStyle("", null);
-	    StyleConstants.setForeground(texto_branco, Color.WHITE);
-	    doc.insertString(doc.getLength(), mensagem, texto_branco);
+	    	StyleConstants.setForeground(texto_branco, Color.WHITE);
+	    	doc.insertString(doc.getLength(), mensagem, texto_branco);
 	}
 	
 	public static String removeEnter (String string) {
@@ -167,17 +162,17 @@ public class Main {
 		return set_diretorios;
 	}
 
-	public static void cd (ArrayList<String> lista_diretorios, String diretorio_atual) throws BadLocationException {
-		if (lista_diretorios.size() == 0) return;
+	public static boolean cd (ArrayList<String> lista_diretorios, String diretorio_atual) throws BadLocationException {
+		if (lista_diretorios.size() == 0) return true;
 		String novo_dir = lista_diretorios.get(0);
 		Set<String> set_diretorios = listaDiretorios(diretorio);
 		if (novo_dir.equals("")) {
 			lista_diretorios.remove(0);
 			cd(lista_diretorios, diretorio_atual);
 		} else if (novo_dir.equals("..") || novo_dir.equals("../")) {
-			String array_diretorio[] = diretorio.split(contrabarra);
+			String array_diretorio[] = diretorio.split("/");
 			array_diretorio[array_diretorio.length - 1] = "";
-			diretorio = String.join(contrabarra, array_diretorio);
+			diretorio = String.join("/", array_diretorio);
 			lista_diretorios.remove(0);
 			cd(lista_diretorios, diretorio_atual);
 		} else if (novo_dir.equals("/")) {
@@ -191,7 +186,7 @@ public class Main {
 		} else if (novo_dir.charAt(0) == '~' && novo_dir.length() > 1) {
 			if (novo_dir.charAt(1) != '/') {
 				adicionaMensagem(textpane, "Caminho inválido\n");
-				return;
+				return false;
 			}
 		} else {
 			if (set_diretorios.contains(novo_dir)) {
@@ -202,10 +197,10 @@ public class Main {
 			} else {
 				adicionaMensagem(textpane, "Caminho inválido\n");
 				diretorio = diretorio_atual;
-				return;
+				return false;
 			}
 		}
-		//adicionaMensagem(textpane, set_diretorios.toString() + " " + novo_dir + "\n");
+		return false;
 	}
 
 
