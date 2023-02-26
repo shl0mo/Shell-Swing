@@ -155,7 +155,7 @@ public class Main {
 		File[] arquivos = file.listFiles();
 		Set<String> set_diretorios = new HashSet<String>();
 		if (arquivos.length > 0) {
-			for (File arquvio: arquivos) {
+			for (File arquivo: arquivos) {
 				if (arquivo.isDirectory()) set_diretorios.add(arquivo.getName());
 			}
 		}
@@ -166,7 +166,7 @@ public class Main {
 		File file = new File(dir);
 		File[] arquivos = file.listFiles();
 		Set<String> set_arquivos = new HashSet<String>();
-		if (diretorios.length > 0) {
+		if (arquivos.length > 0) {
 			for (File arquivo : arquivos) {
 				if (!arquivo.isDirectory()) set_arquivos.add(arquivo.getName());
 			}
@@ -174,27 +174,35 @@ public class Main {
 		return set_arquivos;
 	}
 
-	public static boolean cd (ArrayList<String> lista_diretorios, String diretorio_atual) throws BadLocationException {
-		if (lista_diretorios.size() == 0) return true;
+	public static boolean cd (ArrayList<String> lista_diretorios, String diretorio_atual, boolean verifica_arquivo) throws BadLocationException {
+		if (lista_diretorios.size() == 0) return false;
+		if (verifica_arquivo) {
+			if (lista_diretorios.size() == 1) {
+				String nome_arquivo = lista_diretorios.get(0);
+				File arquivo = new File(diretorio + "/" + nome_arquivo);
+				if (arquivo.exists()) return true;
+				else return false;	
+			}
+		}
 		String novo_dir = lista_diretorios.get(0);
 		Set<String> set_diretorios = listaDiretorios(diretorio);
 		if (novo_dir.equals("")) {
 			lista_diretorios.remove(0);
-			cd(lista_diretorios, diretorio_atual);
+			cd(lista_diretorios, diretorio_atual, verifica_arquivo);
 		} else if (novo_dir.equals("..") || novo_dir.equals("../")) {
 			String array_diretorio[] = diretorio.split("/");
 			array_diretorio[array_diretorio.length - 1] = "";
 			diretorio = String.join("/", array_diretorio);
 			lista_diretorios.remove(0);
-			cd(lista_diretorios, diretorio_atual);
+			cd(lista_diretorios, diretorio_atual, verifica_arquivo);
 		} else if (novo_dir.equals("/")) {
 			diretorio = "/";
 			lista_diretorios.remove(0);
-			cd(lista_diretorios, diretorio_atual);
+			cd(lista_diretorios, diretorio_atual, verifica_arquivo);
 		}else if (novo_dir.equals("~")) {
 			diretorio = "/home/" + System.getProperty("user.name");
 			lista_diretorios.remove(0);
-			cd(lista_diretorios, diretorio_atual);
+			cd(lista_diretorios, diretorio_atual, verifica_arquivo);
 		} else if (novo_dir.charAt(0) == '~' && novo_dir.length() > 1) {
 			if (novo_dir.charAt(1) != '/') {
 				adicionaMensagem(textpane, "Caminho inválido\n");
@@ -205,7 +213,7 @@ public class Main {
 				if (diretorio != "/") diretorio = diretorio + "/" + novo_dir;
 				else diretorio = diretorio + novo_dir;
 				lista_diretorios.remove(0);
-				cd(lista_diretorios, diretorio_atual);
+				cd(lista_diretorios, diretorio_atual, verifica_arquivo);
 			} else {
 				adicionaMensagem(textpane, "Caminho inválido\n");
 				diretorio = diretorio_atual;
@@ -309,12 +317,15 @@ public class Main {
 								ArrayList<String> lista_diretorios = new ArrayList<>();
 								if (comandos.get(1).charAt(0) == '/') lista_diretorios.add("/");
 								for (String dir : array_caminho) lista_diretorios.add(dir);
-								boolean arquivo_exite = cd(lista_diretorios, diretorio);
+								String diretorio_atual = diretorio;
+								cd(lista_diretorios, diretorio, true);
+								boolean arquivo_existe = cd(lista_diretorios, diretorio, true);
 								if (arquivo_existe) {
-									adicionaMensagem(textpane, "Arquivo existe");
+									adicionaMensagem(textpane, "Arquivo existe\n");
 								} else {
-									adicionaMensagem(textpane, );
+									adicionaMensagem(textpane, "Arquivo não existe\n");
 								}
+								diretorio = diretorio_atual;
 							}
 		        			} else if (comandos.get(0).equals("touch")) {
 		        				if (comandos.size() == 1) {
