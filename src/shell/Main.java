@@ -1,4 +1,4 @@
-package shell;
+//package shell;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -19,7 +19,7 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.NumberFormat.Style;
+//import java.text.NumberFormat.Style;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -167,6 +167,27 @@ public class Main {
 		return set_diretorios;
 	}
 
+	public static void cd (String novo_dir) {
+		Set<String> set_diretorios = listaDiretorios(diretorio);
+		if (novo_dir.equals("..")) {
+			String array_diretorio[] = diretorio.split(contrabarra);
+			array_diretorio[array_diretorio.length - 1] = "";
+			diretorio = String.join(contrabarra, array_diretorio);
+		} else {
+			if (set_diretorios.contains(novo_dir)) {
+				diretorio = diretorio + "/" + novo_dir;
+			} else {
+				File dir = new File(novo_dir).getAbsoluteFile();
+			        boolean dir_existe = false;
+			   	if (dir.exists() || dir.mkdirs()) {
+			        	dir_existe = (System.setProperty("user.dir", dir.getAbsolutePath()) != null);
+			        }
+			        System.out.println(dir_existe);        
+			}
+		}
+		//adicionaMensagem(textpane, set_diretorios.toString() + " " + novo_dir + "\n");
+	}
+
 
 	
 	public static void highlight() {
@@ -232,34 +253,14 @@ public class Main {
 		        					textpane.setText(textpane.getText() + string_listagem);
 		        				}
 		        			} else if (comandos.get(0).equals("cd")) {
-		        				if (comandos.size() == 1) {
-		        					adicionaMensagem(textpane, "Especifique o caminho\n");
-		        				} else if (comandos.size() > 2) {
-		        					adicionaMensagem(textpane, "O comando suporta apenas um parâmetro\n");
-		        				}
-		        				if (comandos.size() > 1) {
-			        				String novo_dir = comandos.get(1);
-			        				Set<String> set_diretorios = listaDiretorios(diretorio);
-			        				if (novo_dir.equals("..")) {
-			        					String array_diretorio[] = diretorio.split(contrabarra);
-			        					array_diretorio[array_diretorio.length - 1] = "";
-			        					diretorio = String.join(contrabarra, array_diretorio);
-			        				} else {
-			        					if (set_diretorios.contains(novo_dir)) {
-			        						diretorio = diretorio + "/" + novo_dir;
-			        					} else {
-			        						File dir = new File(novo_dir).getAbsoluteFile();
-			        						boolean dir_existe = false;
-			        				        if (dir.exists() || dir.mkdirs())
-			        				        {
-			        				            dir_existe = (System.setProperty("user.dir", dir.getAbsolutePath()) != null);
-			        				        }
-			        				        System.out.println(dir_existe);
-			        				        
-			        					}
-			        				}
-			        				//adicionaMensagem(textpane, set_diretorios.toString() + " " + novo_dir + "\n");
-		        				}
+							if (comandos.size() == 1) {
+								adicionaMensagem(textpane, "Especifique o caminho\n");
+							} else if (comandos.size() > 2) {
+								adicionaMensagem(textpane, "O comando suporta apenas um parâmetro\n");
+							}
+							if (comandos.size() > 1) {
+								cd(comandos.get(1));
+							}
 		        			} else if (comandos.get(0).equals("touch")) {
 		        				if (comandos.size() == 1) {
 		        					adicionaMensagem(textpane, "O nome do arquivo deve ser passado como parâmetro\n");
@@ -315,7 +316,7 @@ public class Main {
 	}
 	
 	
-	public class Keyboard {
+	/*class Keyboard {
 	    private static final Map<Integer, Boolean> pressedKeys = new HashMap<>();
 
 	    static {
@@ -331,6 +332,6 @@ public class Main {
 	    public static boolean isKeyPressed(int keyCode) { // Any key code from the KeyEvent class
 	        return pressedKeys.getOrDefault(keyCode, false);
 	    }
-	}
+	}*/
 }
 
