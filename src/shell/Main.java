@@ -12,10 +12,15 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.FileOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -233,14 +238,27 @@ public class Main {
 		return false;
 	}
 
-	public static String cat (String caminho_arquivo) throws BadLocationException, IOException {
+	public static String formataPastaUsuario (String caminho) {
+		return String.join("/home/" + System.getProperty("user.name") + "/", caminho.split("~")); 
+	}
+
+
+	public static void cp (String caminho_arquivo, String caminho_destino, String nome_arquivo) throws IOException {
+		if (caminho_arquivo.charAt(0) == '~') caminho_arquivo = formataPastaUsuario(caminho_arquivo);
+		if (caminho_destino.charAt(0) == '~') caminho_destino = formataPastaUsuario(caminho_destino) + "/" + nome_arquivo ;
+		File arquivo_origem = new File(caminho_arquivo);
+		File arquivo_destino = new File(caminho_destino);
+		Files.copy(arquivo_origem.toPath(), arquivo_destino.toPath());
+	}
+
+	public static String cat (String caminho_arquivo) throws BadLocationException, IOException, UnsupportedEncodingException {
 		if (!caminho_arquivo.contains("/")) caminho_arquivo = diretorio + "/" + caminho_arquivo;
-		if (caminho_arquivo.charAt(0) == '~') caminho_arquivo = String.join("/home/" + System.getProperty("user.name") + "/", caminho_arquivo.split("~"));
+		if (caminho_arquivo.charAt(0) == '~') caminho_arquivo = formataPastaUsuario(caminho_arquivo);
 		boolean arquivo_encontrado = true;
 		BufferedReader br = null;
 		String conteudo_arquivo = "";
 		try {
-			br = new BufferedReader(new FileReader(new File(caminho_arquivo)));
+			br = new BufferedReader(new InputStreamReader(new FileInputStream(caminho_arquivo), "ISO-8859-1"));
 		} catch (Exception e) {
 			adicionaMensagem(textpane, "Arquivo não encontrado\n");
 		        arquivo_encontrado = false;
@@ -250,6 +268,14 @@ public class Main {
 				conteudo_arquivo = conteudo_arquivo + br.readLine() + "\n";
 			}
 		}
+		br.close();
+		return conteudo_arquivo;
+	}
+
+	public static String aplicaCat (String caminho_arquivo) throws BadLocationException, IOException {
+		ArrayList<String> lista_arquivo = criaListaDiretorios(caminho_arquivo);
+		cd(lista_arquivo, diretorio, true);
+		String conteudo_arquivo = cat(caminho_arquivo);
 		return conteudo_arquivo;
 	}
 
@@ -347,13 +373,23 @@ public class Main {
 									adicionaMensagem(textpane, "O arquivo informado não existe\n");
 								} else {
 									if (arquivo_existe && diretorio_existe) {
-										//cd(lista_arquivo, diretorio, true);
+										cp(caminho_arquivo, caminho_diretorio, nome_arquivo);
+										/*cd(lista_arquivo, diretorio, true);
 										//if (caminho_diretorio.charAt(caminho_diretorio.length() - 1) != '/') caminho_diretorio = caminho_diretorio + "/";
-										String conteudo_arquivo = cat(caminho_arquivo);
+										//String conteudo_arquivo = aplicaCat(caminho_arquivo);
+										//String array_conteudo_arquivo[] = conteudo_arquivo.split("\n");
+										//adicionaMensagem(textpane, conteudo_arquivo);
 										cd(lista_diretorio, diretorio, false);
-										File arquivo_copia = new File(diretorio + "/" + nome_arquivo);
-										arquivo_copia.createNewFile();
-										//diretorio = diretorio_atual;
+										//File arquivo_copia = new File(diretorio + "/" + nome_arquivo);
+										//arquivo_copia.createNewFile();
+										FileOutputStream novo_arquivo = new FileOutputStream(diretorio + "/" + nome_arquivo, true);
+										//BufferedWriter bf = new BufferedWriter(arquivo_escrita);
+										//bf.write(aplicaCat(caminho_arquivo));
+										//bf.close();
+										byte bytes[] = cat(caminho_arquivo).getBytes();
+										novo_arquivo.write(bytes);
+										novo_arquivo.close();
+										diretorio = diretorio_atual;*/
 									}
 								}
 							}
@@ -371,11 +407,9 @@ public class Main {
 		        				if (comandos.size() == 1) {
 		        					adicionaMensagem(textpane, "O nome do arquivo deve ser passado como parâmetro\n");
 		        				} else if (comandos.size() == 2) {
-								String caminho_arquivo = comandos.get(1);
-								ArrayList<String> lista_arquivo = criaListaDiretorios(caminho_arquivo);
 								String diretorio_atual = diretorio;
-								cd(lista_arquivo, diretorio, true);
-								String conteudo_arquivo = cat(caminho_arquivo);
+								String caminho_arquivo = comandos.get(1);
+								String conteudo_arquivo = aplicaCat(caminho_arquivo);
 								adicionaMensagem(textpane, conteudo_arquivo + "\n");
 								diretorio = diretorio_atual;
 		        				} else {
@@ -395,7 +429,6 @@ public class Main {
 	        	} catch (BadLocationException e) {
 	        		e.printStackTrace();
 	        	} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 	        	Thread.currentThread().interrupt();
