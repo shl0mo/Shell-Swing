@@ -229,14 +229,14 @@ public class Main {
 		return false;
 	}
 
-	public static String cat (String nome_ou_caminho_arquivo) throws BadLocationException, IOException {
-		if (!nome_ou_caminho_arquivo.contains("/")) nome_ou_caminho_arquivo = diretorio + "/" + nome_ou_caminho_arquivo;
-		if (nome_ou_caminho_arquivo.charAt(0) == '~') nome_ou_caminho_arquivo = String.join("/home/" + System.getProperty("user.name") + "/", nome_ou_caminho_arquivo.split("~"));
+	public static String cat (String caminho_arquivo) throws BadLocationException, IOException {
+		if (!caminho_arquivo.contains("/")) caminho_arquivo = diretorio + "/" + caminho_arquivo;
+		if (caminho_arquivo.charAt(0) == '~') caminho_arquivo = String.join("/home/" + System.getProperty("user.name") + "/", caminho_arquivo.split("~"));
 		boolean arquivo_encontrado = true;
 		BufferedReader br = null;
 		String conteudo_arquivo = "";
 		try {
-			br = new BufferedReader(new FileReader(new File(nome_ou_caminho_arquivo)));
+			br = new BufferedReader(new FileReader(new File(caminho_arquivo)));
 		} catch (Exception e) {
 			adicionaMensagem(textpane, "Arquivo não encontrado\n");
 		        arquivo_encontrado = false;
@@ -245,7 +245,6 @@ public class Main {
 			while (br.ready()) {
 				conteudo_arquivo = conteudo_arquivo + br.readLine() + "\n";
 			}
-			textpane.setText(textpane.getText() + conteudo_arquivo);
 		}
 		return conteudo_arquivo;
 	}
@@ -329,6 +328,8 @@ public class Main {
 								adicionaMensagem(textpane, "Especifique ambos o arquivo e o diretório de origem\n");
 							} else {
 								String caminho_arquivo = comandos.get(1);
+								String array_caminho_arquivo[] = caminho_arquivo.split("/");
+								String nome_arquivo = array_caminho_arquivo[array_caminho_arquivo.length - 1];
 								String caminho_diretorio = comandos.get(2);
 								ArrayList<String> lista_arquivo = criaListaDiretorios(caminho_arquivo);
 								ArrayList<String> lista_diretorio = criaListaDiretorios(caminho_diretorio);
@@ -342,7 +343,13 @@ public class Main {
 									adicionaMensagem(textpane, "O arquivo informado não existe\n");
 								} else {
 									if (arquivo_existe && diretorio_existe) {
-										//cat();
+										//cd(lista_arquivo, diretorio, true);
+										//if (caminho_diretorio.charAt(caminho_diretorio.length() - 1) != '/') caminho_diretorio = caminho_diretorio + "/";
+										String conteudo_arquivo = cat(caminho_arquivo);
+										cd(lista_diretorio, diretorio, false);
+										File arquivo_copia = new File(diretorio + "/" + nome_arquivo);
+										arquivo_copia.createNewFile();
+										//diretorio = diretorio_atual;
 									}
 								}
 							}
@@ -360,11 +367,12 @@ public class Main {
 		        				if (comandos.size() == 1) {
 		        					adicionaMensagem(textpane, "O nome do arquivo deve ser passado como parâmetro\n");
 		        				} else if (comandos.size() == 2) {
-								String nome_ou_caminho_arquivo = comandos.get(1);
-								ArrayList<String> lista_arquivo = criaListaDiretorios(nome_ou_caminho_arquivo);
+								String caminho_arquivo = comandos.get(1);
+								ArrayList<String> lista_arquivo = criaListaDiretorios(caminho_arquivo);
 								String diretorio_atual = diretorio;
 								cd(lista_arquivo, diretorio, true);
-								cat(nome_ou_caminho_arquivo);
+								String conteudo_arquivo = cat(caminho_arquivo);
+								adicionaMensagem(textpane, conteudo_arquivo + "\n");
 								diretorio = diretorio_atual;
 		        				} else {
 								adicionaMensagem(textpane, "O comando cat recebe apenas um argumento\n");
