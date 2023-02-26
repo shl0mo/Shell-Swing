@@ -185,6 +185,29 @@ public class Main {
 		return lista_diretorios;
 	}
 
+	public static ArrayList<Boolean> existemArquivoDiretorio (String caminho_arquivo, String caminho_diretorio) throws BadLocationException {
+		ArrayList<Boolean> lista_existem = new ArrayList<>();
+		String array_caminho_arquivo[] = caminho_arquivo.split("/");
+		String nome_arquivo = array_caminho_arquivo[array_caminho_arquivo.length - 1];
+		ArrayList<String> lista_arquivo = criaListaDiretorios(caminho_arquivo);
+		ArrayList<String> lista_diretorio = criaListaDiretorios(caminho_diretorio);
+		String diretorio_atual = diretorio;
+		cd(lista_arquivo, diretorio, true);
+		boolean arquivo_existe = cd(lista_arquivo, diretorio, true);
+		diretorio = diretorio_atual;
+		boolean diretorio_existe = cd(lista_diretorio, diretorio, false);
+		lista_existem.add(arquivo_existe);
+		lista_existem.add(diretorio_existe);
+		diretorio = diretorio_atual;
+		return lista_existem;
+	}
+
+	public static String nomeArquivoDiretorio (String caminho_diretorio) {
+		String array_caminho_diretorio[] = caminho_diretorio.split("/");
+		String nome_arquivo = array_caminho_diretorio[array_caminho_diretorio.length - 1];
+		return nome_arquivo;
+	}
+
 	public static boolean cd (ArrayList<String> lista_diretorios, String diretorio_atual, boolean verifica_arquivo) throws BadLocationException {
 		if (lista_diretorios.size() == 0) return true;
 		if (verifica_arquivo) {
@@ -325,8 +348,20 @@ public class Main {
 		        		comandos = novos_comandos;
 		        		System.out.println(comandos.toString());
 		        		if (comandos.size() > 0) { // Caso algum comando tenha sido executado
-			        		// Interpretação e execução do comando de criar arquivos - touch
-		        			if (comandos.get(0).equals("ls")) {
+						if (comandos.contains(">")) { // Salva a saída de um comando em um arquivo
+							if (comandos.get(0).equals("cat") && comandos.size() == 4 && comandos.get(2).equals(">")) { // Se o comando a ter a saída salva em um arquivo for o cat
+								String caminho_arquivo_cat = comandos.get(1);
+								String caminho_novo_arquivo = comandos.get(3);
+								//String nome_novo_arquivo = ;
+
+							} else if (comandos.get(0).equals("ls") && comandos.size() == 3 && comandos.get(1).equals(">")) { // Se o comando a ter a saída salva em um arquivo for o ls, sem a flag -a
+								
+							} else if (comandos.get(0).equals("ls") && comandos.size() == 4 && comandos.get(1).equals("-a") && comandos.get(2).equals(">")) { // Se o comando a ter a saída salva em um arquivo for o ls, com a flag -a
+								
+							} else {
+								adicionaMensagem(textpane, "Para o redirecionador de saída (>), o operador da esquerda deve ser o comando cat ou o ls e o da direita o nome ou caminho e nome de um novo arquivo\n");
+							}
+						} else if (comandos.get(0).equals("ls")) { // Comando de listar arquivos - ls
 		        				if (comandos.size() == 1) {
 		        					String string_listagem = "";
 		        					Set<String> set_arquivos = listaArquivos(diretorio);
@@ -354,27 +389,22 @@ public class Main {
 								ArrayList<String> lista_diretorio = criaListaDiretorios(caminho);
 								cd(lista_diretorio, diretorio, false);
 							}
-		        			} else if (comandos.get(0).equals("cp") || comandos.get(0).equals("mv")) {
+		        			} else if (comandos.get(0).equals("cp") || comandos.get(0).equals("mv")) { // Comando para copiar arquivos - cp
 							if (comandos.size() <= 2) {
 								adicionaMensagem(textpane, "Especifique ambos o arquivo e o diretório de origem\n");
 							} else {
 								String caminho_arquivo = comandos.get(1);
-								String array_caminho_arquivo[] = caminho_arquivo.split("/");
-								String nome_arquivo = array_caminho_arquivo[array_caminho_arquivo.length - 1];
 								String caminho_diretorio = comandos.get(2);
-								ArrayList<String> lista_arquivo = criaListaDiretorios(caminho_arquivo);
-								ArrayList<String> lista_diretorio = criaListaDiretorios(caminho_diretorio);
-								System.out.println("Lista diretório: " + lista_diretorio.toString());
-								String diretorio_atual = diretorio;
-								cd(lista_arquivo, diretorio, true);
-								boolean arquivo_existe = cd(lista_arquivo, diretorio, true);
-								diretorio = diretorio_atual;
-								boolean diretorio_existe = cd(lista_diretorio, diretorio, false);
+								String nome_arquivo = nomeArquivoDiretorio(caminho_arquivo);
+								ArrayList<Boolean> lista_existem = new ArrayList<>();
+								lista_existem = existemArquivoDiretorio(caminho_arquivo, caminho_diretorio);
+								boolean arquivo_existe = lista_existem.get(0);
+								boolean diretorio_existe = lista_existem.get(1);
 								if (!arquivo_existe) {
 									adicionaMensagem(textpane, "O arquivo informado não existe\n");
 								} else {
 									if (arquivo_existe && diretorio_existe) {
-										if (comandos.equals("cp")) cp_mv(caminho_arquivo, caminho_diretorio, nome_arquivo, true);
+										if (comandos.get(0).equals("cp")) cp_mv(caminho_arquivo, caminho_diretorio, nome_arquivo, true);
 										else cp_mv(caminho_arquivo, caminho_diretorio, nome_arquivo, false);
 									}
 								}
@@ -389,7 +419,11 @@ public class Main {
 		        					File novo_arquivo = new File(diretorio + nome_novo_arquivo);
 		        					novo_arquivo.createNewFile();
 		        				}
-		        			} else if (comandos.get(0).equals("cat")) {
+		        			} else if (comandos.get(0).equals("mkdir")) {
+							
+						} else if (comandos.get(0).equals("rm")) {
+							
+						} else if (comandos.get(0).equals("cat")) {
 		        				if (comandos.size() == 1) {
 		        					adicionaMensagem(textpane, "O nome do arquivo deve ser passado como parâmetro\n");
 		        				} else if (comandos.size() == 2) {
