@@ -208,6 +208,10 @@ public class Main {
 		return nome_arquivo;
 	}
 
+	public static String formataPastaUsuario (String caminho) {
+		return String.join("/home/" + System.getProperty("user.name") + "/", caminho.split("~")); 
+	}
+
 	public static boolean cd (ArrayList<String> lista_diretorios, String diretorio_atual, boolean verifica_arquivo) throws BadLocationException {
 		if (lista_diretorios.size() == 0) return true;
 		if (verifica_arquivo) {
@@ -261,11 +265,6 @@ public class Main {
 		return false;
 	}
 
-	public static String formataPastaUsuario (String caminho) {
-		return String.join("/home/" + System.getProperty("user.name") + "/", caminho.split("~")); 
-	}
-
-
 	public static void cp_mv (String caminho_arquivo, String caminho_destino, String nome_arquivo, boolean copiar) throws IOException {
 		if (caminho_arquivo.charAt(0) == '~') caminho_arquivo = formataPastaUsuario(caminho_arquivo);
 		if (caminho_destino.charAt(0) == '~') caminho_destino = formataPastaUsuario(caminho_destino) + "/" + nome_arquivo ;
@@ -302,6 +301,10 @@ public class Main {
 		cd(lista_arquivo, diretorio, true);
 		String conteudo_arquivo = cat(caminho_arquivo);
 		return conteudo_arquivo;
+	}
+
+	public static String pwd () {
+		return diretorio;
 	}
 
 
@@ -452,7 +455,9 @@ public class Main {
 		        				} else {
 								adicionaMensagem(textpane, "O comando cat recebe apenas um argumento\n");
 							}
-		        			} else if (comandos.get(0).equals("clear")) { // Comando clear
+		        			} else if (comandos.get(0).equals("pwd")) {
+							adicionaMensagem(textpane, pwd() + "\n");
+						} else if (comandos.get(0).equals("clear")) { // Comando clear
 		        				textpane.setText("");
 		        			} else if (comandos.get(0).equals("exit")) {
 		        				frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
