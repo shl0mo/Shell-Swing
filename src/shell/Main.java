@@ -187,31 +187,31 @@ public class Main {
 				String nome_arquivo = lista_diretorios.get(0);
 				File arquivo = new File(diretorio + "/" + nome_arquivo);
 				if (arquivo.exists()) return true;
-				else return false;	
+				else return false;
 			}
 		}
 		String novo_dir = lista_diretorios.get(0);
 		Set<String> set_diretorios = listaDiretorios(diretorio);
 		if (novo_dir.equals("")) {
 			lista_diretorios.remove(0);
-			cd(lista_diretorios, diretorio_atual, verifica_arquivo);
+			return cd(lista_diretorios, diretorio_atual, verifica_arquivo);
 		} else if (novo_dir.equals("..") || novo_dir.equals("../")) {
 			String array_diretorio[] = diretorio.split("/");
 			array_diretorio[array_diretorio.length - 1] = "";
 			diretorio = String.join("/", array_diretorio);
 			lista_diretorios.remove(0);
-			cd(lista_diretorios, diretorio_atual, verifica_arquivo);
+			return cd(lista_diretorios, diretorio_atual, verifica_arquivo);
 		} else if (novo_dir.equals("/")) {
 			diretorio = "/";
 			lista_diretorios.remove(0);
 			cd(lista_diretorios, diretorio_atual, verifica_arquivo);
-		}else if (novo_dir.equals("~")) {
+		}else if (novo_dir.equals("~") || novo_dir.equals("~/")) {
 			diretorio = "/home/" + System.getProperty("user.name");
 			lista_diretorios.remove(0);
-			cd(lista_diretorios, diretorio_atual, verifica_arquivo);
+			return cd(lista_diretorios, diretorio_atual, verifica_arquivo);
 		} else if (novo_dir.charAt(0) == '~' && novo_dir.length() > 1) {
 			if (novo_dir.charAt(1) != '/') {
-				adicionaMensagem(textpane, "Caminho inválido\n");
+				adicionaMensagem(textpane, "Diretório inválido\n");
 				return false;
 			}
 		} else {
@@ -219,9 +219,9 @@ public class Main {
 				if (diretorio != "/") diretorio = diretorio + "/" + novo_dir;
 				else diretorio = diretorio + novo_dir;
 				lista_diretorios.remove(0);
-				cd(lista_diretorios, diretorio_atual, verifica_arquivo);
+				return cd(lista_diretorios, diretorio_atual, verifica_arquivo);
 			} else {
-				adicionaMensagem(textpane, "Caminho inválido\n");
+				adicionaMensagem(textpane, "Diretório inválido\n");
 				diretorio = diretorio_atual;
 				return false;
 			}
@@ -330,21 +330,18 @@ public class Main {
 								String caminho_diretorio = comandos.get(2);
 								ArrayList<String> lista_arquivo = criaListaDiretorios(caminho_arquivo);
 								ArrayList<String> lista_diretorio = criaListaDiretorios(caminho_diretorio);
+								System.out.println("Lista diretório: " + lista_diretorio.toString());
 								String diretorio_atual = diretorio;
 								cd(lista_arquivo, diretorio, true);
 								boolean arquivo_existe = cd(lista_arquivo, diretorio, true);
 								diretorio = diretorio_atual;
-								boolean diretorio_existe = cd(lista_diretorio, diretorio, true);
+								boolean diretorio_existe = cd(lista_diretorio, diretorio, false);
 								if (!arquivo_existe) {
 									adicionaMensagem(textpane, "O arquivo informado não existe\n");
-								} else if (!diretorio_existe) {
-									adicionaMensagem(textpane, "O diretório informado não existe\n");
 								} else {
-								if (arquivo_existe && diretorio_existe) {
-									adicionaMensagem(textpane, "Copiando arquivo...\n");
-								} else {
-									
-								}
+									if (arquivo_existe && diretorio_existe) {
+										adicionaMensagem(textpane, "Copiando arquivo...\n");
+									}
 								}
 							}
 						} else if (comandos.get(0).equals("touch")) {
