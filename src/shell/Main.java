@@ -243,12 +243,13 @@ public class Main {
 	}
 
 
-	public static void cp (String caminho_arquivo, String caminho_destino, String nome_arquivo) throws IOException {
+	public static void cp_mv (String caminho_arquivo, String caminho_destino, String nome_arquivo, boolean copiar) throws IOException {
 		if (caminho_arquivo.charAt(0) == '~') caminho_arquivo = formataPastaUsuario(caminho_arquivo);
 		if (caminho_destino.charAt(0) == '~') caminho_destino = formataPastaUsuario(caminho_destino) + "/" + nome_arquivo ;
 		File arquivo_origem = new File(caminho_arquivo);
 		File arquivo_destino = new File(caminho_destino);
-		Files.copy(arquivo_origem.toPath(), arquivo_destino.toPath());
+		if (copiar) Files.copy(arquivo_origem.toPath(), arquivo_destino.toPath());
+		else Files.move(arquivo_origem.toPath(), arquivo_destino.toPath());
 	}
 
 	public static String cat (String caminho_arquivo) throws BadLocationException, IOException, UnsupportedEncodingException {
@@ -353,7 +354,7 @@ public class Main {
 								ArrayList<String> lista_diretorio = criaListaDiretorios(caminho);
 								cd(lista_diretorio, diretorio, false);
 							}
-		        			} else if (comandos.get(0).equals("cp")) {
+		        			} else if (comandos.get(0).equals("cp") || comandos.get(0).equals("mv")) {
 							if (comandos.size() <= 2) {
 								adicionaMensagem(textpane, "Especifique ambos o arquivo e o diretório de origem\n");
 							} else {
@@ -373,23 +374,8 @@ public class Main {
 									adicionaMensagem(textpane, "O arquivo informado não existe\n");
 								} else {
 									if (arquivo_existe && diretorio_existe) {
-										cp(caminho_arquivo, caminho_diretorio, nome_arquivo);
-										/*cd(lista_arquivo, diretorio, true);
-										//if (caminho_diretorio.charAt(caminho_diretorio.length() - 1) != '/') caminho_diretorio = caminho_diretorio + "/";
-										//String conteudo_arquivo = aplicaCat(caminho_arquivo);
-										//String array_conteudo_arquivo[] = conteudo_arquivo.split("\n");
-										//adicionaMensagem(textpane, conteudo_arquivo);
-										cd(lista_diretorio, diretorio, false);
-										//File arquivo_copia = new File(diretorio + "/" + nome_arquivo);
-										//arquivo_copia.createNewFile();
-										FileOutputStream novo_arquivo = new FileOutputStream(diretorio + "/" + nome_arquivo, true);
-										//BufferedWriter bf = new BufferedWriter(arquivo_escrita);
-										//bf.write(aplicaCat(caminho_arquivo));
-										//bf.close();
-										byte bytes[] = cat(caminho_arquivo).getBytes();
-										novo_arquivo.write(bytes);
-										novo_arquivo.close();
-										diretorio = diretorio_atual;*/
+										if (comandos.equals("cp")) cp_mv(caminho_arquivo, caminho_diretorio, nome_arquivo, true);
+										else cp_mv(caminho_arquivo, caminho_diretorio, nome_arquivo, false);
 									}
 								}
 							}
