@@ -152,14 +152,26 @@ public class Main {
 	
 	public static Set<String> listaDiretorios (String dir) {
 		File file = new File(dir);
-		File[] diretorios = file.listFiles();
+		File[] arquivos = file.listFiles();
 		Set<String> set_diretorios = new HashSet<String>();
-		if (diretorios.length > 0) {
-			for (File arquivo: diretorios) {
+		if (arquivos.length > 0) {
+			for (File arquvio: arquivos) {
 				if (arquivo.isDirectory()) set_diretorios.add(arquivo.getName());
 			}
 		}
 		return set_diretorios;
+	}
+
+	public static Set<String> listaApenasArquivos (String dir) {
+		File file = new File(dir);
+		File[] arquivos = file.listFiles();
+		Set<String> set_arquivos = new HashSet<String>();
+		if (diretorios.length > 0) {
+			for (File arquivo : arquivos) {
+				if (!arquivo.isDirectory()) set_arquivos.add(arquivo.getName());
+			}
+		}
+		return set_arquivos;
 	}
 
 	public static boolean cd (ArrayList<String> lista_diretorios, String diretorio_atual) throws BadLocationException {
@@ -297,7 +309,12 @@ public class Main {
 								ArrayList<String> lista_diretorios = new ArrayList<>();
 								if (comandos.get(1).charAt(0) == '/') lista_diretorios.add("/");
 								for (String dir : array_caminho) lista_diretorios.add(dir);
-								cd(lista_diretorios, diretorio);
+								boolean arquivo_exite = cd(lista_diretorios, diretorio);
+								if (arquivo_existe) {
+									adicionaMensagem(textpane, "Arquivo existe");
+								} else {
+									adicionaMensagem(textpane, );
+								}
 							}
 		        			} else if (comandos.get(0).equals("touch")) {
 		        				if (comandos.size() == 1) {
