@@ -269,7 +269,8 @@ public class Main {
 	public static void cp_mv (String caminho_arquivo, String caminho_destino, String nome_arquivo, boolean copiar) throws IOException {
 		if (caminho_arquivo.charAt(0) == '~') caminho_arquivo = formataPastaUsuario(caminho_arquivo);
 		if (caminho_destino.charAt(0) == '~') caminho_destino = formataPastaUsuario(caminho_destino) + "/" + nome_arquivo ;
-		File arquivo_origem = new File(caminho_arquivo);
+		File arquivo_origem = null;
+		arquivo_origem = new File(caminho_arquivo);
 		File arquivo_destino = new File(caminho_destino);
 		if (copiar) Files.copy(arquivo_origem.toPath(), arquivo_destino.toPath());
 		else Files.move(arquivo_origem.toPath(), arquivo_destino.toPath());
@@ -352,8 +353,24 @@ public class Main {
 							if (comandos.get(0).equals("cat") && comandos.size() == 4 && comandos.get(2).equals(">")) { // Se o comando a ter a saída salva em um arquivo for o cat
 								String caminho_arquivo_cat = comandos.get(1);
 								String caminho_novo_arquivo = comandos.get(3);
-								//String nome_novo_arquivo = ;
-
+								String nome_arquivo = nomeArquivoDiretorio(caminho_novo_arquivo);
+								String array_caminho_novo_arquivo[] = caminho_novo_arquivo.split("/");
+								String caminho_diretorio = "";
+								for (int i = 0; i < array_caminho_novo_arquivo.length - 1; i++) {
+									caminho_diretorio = caminho_diretorio + array_caminho_novo_arquivo[i] + "/";
+								}
+								ArrayList<Boolean> lista_existem = existemArquivoDiretorio(caminho_arquivo_cat, caminho_diretorio);
+								boolean arquivo_existe = lista_existem.get(0);
+								boolean diretorio_existe = lista_existem.get(1);
+								if (!arquivo_existe && !diretorio_existe) {
+									adicionaMensagem(textpane, "Arquivo de origem e diretório de destino inválidos\n");
+								} else if (!arquivo_existe) {
+									adicionaMensagem(textpane, "O arquivo informado não existe\n");
+								} else if (!diretorio_existe) {
+									
+								} else {
+									cp_mv(caminho_arquivo_cat, caminho_diretorio, nome_arquivo, true);
+								}
 							} else if (comandos.get(0).equals("ls") && comandos.size() == 3 && comandos.get(1).equals(">")) { // Se o comando a ter a saída salva em um arquivo for o ls, sem a flag -a
 								
 							} else if (comandos.get(0).equals("ls") && comandos.size() == 4 && comandos.get(1).equals("-a") && comandos.get(2).equals(">")) { // Se o comando a ter a saída salva em um arquivo for o ls, com a flag -a
