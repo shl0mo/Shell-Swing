@@ -181,7 +181,7 @@ public class Main {
 	}
 
 	public static boolean cd (ArrayList<String> lista_diretorios, String diretorio_atual, boolean verifica_arquivo) throws BadLocationException {
-		if (lista_diretorios.size() == 0) return false;
+		if (lista_diretorios.size() == 0) return true;
 		if (verifica_arquivo) {
 			if (lista_diretorios.size() == 1) {
 				String nome_arquivo = lista_diretorios.get(0);
@@ -319,16 +319,34 @@ public class Main {
 							}
 							if (comandos.size() > 1) {
 								String caminho = comandos.get(1);
-								ArrayList<String> lista_diretorios = criaListaDiretorios(caminho);
-								cd(lista_diretorios, diretorio, false);
+								ArrayList<String> lista_diretorio = criaListaDiretorios(caminho);
+								cd(lista_diretorio, diretorio, false);
 							}
 		        			} else if (comandos.get(0).equals("cp")) {
 							if (comandos.size() <= 2) {
 								adicionaMensagem(textpane, "Especifique ambos o arquivo e o diretório de origem\n");
+							} else {
+								String caminho_arquivo = comandos.get(1);
+								String caminho_diretorio = comandos.get(2);
+								ArrayList<String> lista_arquivo = criaListaDiretorios(caminho_arquivo);
+								ArrayList<String> lista_diretorio = criaListaDiretorios(caminho_diretorio);
+								String diretorio_atual = diretorio;
+								cd(lista_arquivo, diretorio, true);
+								boolean arquivo_existe = cd(lista_arquivo, diretorio, true);
+								diretorio = diretorio_atual;
+								boolean diretorio_existe = cd(lista_diretorio, diretorio, true);
+								if (!arquivo_existe) {
+									adicionaMensagem(textpane, "O arquivo informado não existe\n");
+								} else if (!diretorio_existe) {
+									adicionaMensagem(textpane, "O diretório informado não existe\n");
+								} else {
+								if (arquivo_existe && diretorio_existe) {
+									adicionaMensagem(textpane, "Copiando arquivo...\n");
+								} else {
+									
+								}
+								}
 							}
-							String array_arquivo[] = comandos.get(1).split("/");
-							String array_diretorio[] = comandos.get(2).split("/");
-							//boolean arquivo_existe = cd();
 						} else if (comandos.get(0).equals("touch")) {
 		        				if (comandos.size() == 1) {
 		        					adicionaMensagem(textpane, "O nome do arquivo deve ser passado como parâmetro\n");
