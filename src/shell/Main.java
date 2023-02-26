@@ -298,7 +298,7 @@ public class Main {
 		        					String nome_arquivo = comandos.get(1);
 		        					BufferedReader br = null;
 		        					try {
-		        						br = new BufferedReader(new FileReader(new File(nome_arquivo).getAbsolutePath()));
+		        						br = new BufferedReader(new FileReader(new File(diretorio + "/" + nome_arquivo).getAbsolutePath()));
 		        					} catch (Exception e) {
 		        						adicionaMensagem(textpane, "Arquivo não encontrado\n");
 		        						arquivo_encontrado = false;
