@@ -203,6 +203,25 @@ public class Main {
 		return false;
 	}
 
+	public static String cat (String nome_arquivo) throws BadLocationException, IOException {
+		boolean arquivo_encontrado = true;
+		BufferedReader br = null;
+		String conteudo_arquivo = "";
+		try {
+			br = new BufferedReader(new FileReader(new File(diretorio + "/" + nome_arquivo).getAbsolutePath()));
+		} catch (Exception e) {
+			adicionaMensagem(textpane, "Arquivo não encontrado\n");
+		        arquivo_encontrado = false;
+		}
+		if (arquivo_encontrado) {
+			while (br.ready()) {
+				conteudo_arquivo = conteudo_arquivo + br.readLine() + "\n";
+			}
+			textpane.setText(textpane.getText() + conteudo_arquivo);
+		}
+		return conteudo_arquivo;
+	}
+
 
 	
 	public static void highlight() {
@@ -294,23 +313,10 @@ public class Main {
 		        				if (comandos.size() == 1) {
 		        					adicionaMensagem(textpane, "O nome do arquivo deve ser passado como parâmetro\n");
 		        				} else if (comandos.size() == 2) {
-		        					boolean arquivo_encontrado = true;
-		        					String nome_arquivo = comandos.get(1);
-		        					BufferedReader br = null;
-		        					try {
-		        						br = new BufferedReader(new FileReader(new File(diretorio + "/" + nome_arquivo).getAbsolutePath()));
-		        					} catch (Exception e) {
-		        						adicionaMensagem(textpane, "Arquivo não encontrado\n");
-		        						arquivo_encontrado = false;
-		        					}
-		        					if (arquivo_encontrado) {
-		        						String conteudo_arquivo = "";
-			        					while (br.ready()) {
-			        						conteudo_arquivo = conteudo_arquivo + br.readLine() + "\n";
-			        					}
-			        					textpane.setText(textpane.getText() + conteudo_arquivo);
-		        					}
-		        				}
+								cat(comandos.get(1));
+		        				} else {
+								adicionaMensagem(textpane, "O comando cat recebe apenas um argumento\n");
+							}
 		        			} else if (comandos.get(0).equals("clear")) { // Comando clear
 		        				textpane.setText("");
 		        			} else if (comandos.get(0).equals("exit")) {
