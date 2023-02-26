@@ -352,7 +352,28 @@ public class Main {
 		        		comandos = novos_comandos;
 		        		System.out.println(comandos.toString());
 		        		if (comandos.size() > 0) { // Caso algum comando tenha sido executado
-						if (comandos.contains(">")) { // Salva a saída de um comando em um arquivo
+						if (comandos.contains("&")) {
+							if (!comandos.get(comandos.size() - 1).equals("&")) {
+								adicionaMensagem(textpane, "Para executar arquivos em background, o caractere & deve ser o último do comando\n");	
+							} else {
+								String comando_linha = "";
+								for (int i = 0; i < comandos.size() - 1; i++) {
+									comando_linha = comando_linha + comandos.get(i);
+									if (i != comandos.size() - 2) comando_linha = comando_linha + " ";
+								}
+								try {
+									Runtime r = Runtime.getRuntime();
+									Process p = r.exec(comando_linha);
+									BufferedReader br_linha = new BufferedReader(new InputStreamReader(p.getInputStream()));
+									br_linha.lines().forEach(System.out::println);
+									BufferedReader br_erro = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+									br_erro.lines().forEach(System.out::println);
+								} catch (Exception e) {
+									adicionaMensagem(textpane, "Erro ao tentar executar o comando em segundo plano\n");
+								}
+								
+							}
+						} else if (comandos.contains(">")) { // Salva a saída de um comando em um arquivo
 							if (comandos.get(0).equals("cat") && comandos.size() == 4 && comandos.get(2).equals(">")) { // Se o comando a ter a saída salva em um arquivo for o cat
 								String caminho_arquivo_cat = comandos.get(1);
 								String caminho_novo_arquivo = comandos.get(3);
