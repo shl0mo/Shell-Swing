@@ -169,11 +169,13 @@ public class Main {
 
 	public static void cd (String novo_dir) {
 		Set<String> set_diretorios = listaDiretorios(diretorio);
-		if (novo_dir.equals("..")) {
+		if (novo_dir.equals("..") || novo_dir.equals("../")) {
 			String array_diretorio[] = diretorio.split(contrabarra);
 			array_diretorio[array_diretorio.length - 1] = "";
 			diretorio = String.join(contrabarra, array_diretorio);
-		} else {
+		} else if (novo_dir.equals("~")) {
+			diretorio = "/home/" + System.getProperty("user.name");
+		}else {
 			if (set_diretorios.contains(novo_dir)) {
 				diretorio = diretorio + "/" + novo_dir;
 			} else {
