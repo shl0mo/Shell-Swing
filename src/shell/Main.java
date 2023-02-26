@@ -167,24 +167,42 @@ public class Main {
 		return set_diretorios;
 	}
 
-	public static void cd (String novo_dir) {
+	public static void cd (ArrayList<String> lista_diretorios, String diretorio_atual) throws BadLocationException {
+		if (lista_diretorios.size() == 0) return;
+		String novo_dir = lista_diretorios.get(0);
 		Set<String> set_diretorios = listaDiretorios(diretorio);
-		if (novo_dir.equals("..") || novo_dir.equals("../")) {
+		if (novo_dir.equals("")) {
+			lista_diretorios.remove(0);
+			cd(lista_diretorios, diretorio_atual);
+		} else if (novo_dir.equals("..") || novo_dir.equals("../")) {
 			String array_diretorio[] = diretorio.split(contrabarra);
 			array_diretorio[array_diretorio.length - 1] = "";
 			diretorio = String.join(contrabarra, array_diretorio);
-		} else if (novo_dir.equals("~")) {
+			lista_diretorios.remove(0);
+			cd(lista_diretorios, diretorio_atual);
+		} else if (novo_dir.equals("/")) {
+			diretorio = "/";
+			lista_diretorios.remove(0);
+			cd(lista_diretorios, diretorio_atual);
+		}else if (novo_dir.equals("~")) {
 			diretorio = "/home/" + System.getProperty("user.name");
-		}else {
+			lista_diretorios.remove(0);
+			cd(lista_diretorios, diretorio_atual);
+		} else if (novo_dir.charAt(0) == '~' && novo_dir.length() > 1) {
+			if (novo_dir.charAt(1) != '/') {
+				adicionaMensagem(textpane, "Caminho inválido\n");
+				return;
+			}
+		} else {
 			if (set_diretorios.contains(novo_dir)) {
-				diretorio = diretorio + "/" + novo_dir;
+				if (diretorio != "/") diretorio = diretorio + "/" + novo_dir;
+				else diretorio = diretorio + novo_dir;
+				lista_diretorios.remove(0);
+				cd(lista_diretorios, diretorio_atual);
 			} else {
-				File dir = new File(novo_dir).getAbsoluteFile();
-			        boolean dir_existe = false;
-			   	if (dir.exists() || dir.mkdirs()) {
-			        	dir_existe = (System.setProperty("user.dir", dir.getAbsolutePath()) != null);
-			        }
-			        System.out.println(dir_existe);        
+				adicionaMensagem(textpane, "Caminho inválido\n");
+				diretorio = diretorio_atual;
+				return;
 			}
 		}
 		//adicionaMensagem(textpane, set_diretorios.toString() + " " + novo_dir + "\n");
@@ -261,7 +279,11 @@ public class Main {
 								adicionaMensagem(textpane, "O comando suporta apenas um parâmetro\n");
 							}
 							if (comandos.size() > 1) {
-								cd(comandos.get(1));
+								String array_caminho[] = comandos.get(1).split("/");
+								ArrayList<String> lista_diretorios = new ArrayList<>();
+								if (comandos.get(1).charAt(0) == '/') lista_diretorios.add("/");
+								for (String dir : array_caminho) lista_diretorios.add(dir);
+								cd(lista_diretorios, diretorio);
 							}
 		        			} else if (comandos.get(0).equals("touch")) {
 		        				if (comandos.size() == 1) {
