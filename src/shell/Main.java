@@ -393,11 +393,13 @@ public class Main {
 		}
 	}
 
-	public static void comandoCd (ArrayList<String> comandos) throws BadLocationException {
+	public static boolean comandoCd (ArrayList<String> comandos) throws BadLocationException {
 		if (comandos.size() == 1) {
 			adicionaMensagem(textpane, "Especifique o caminho\n");
+			return false;
 		} else if (comandos.size() > 2) {
 			adicionaMensagem(textpane, "O comando suporta apenas um parâmetro\n");
+			return false;
 		}
 		if (comandos.size() > 1) {
 			String caminho = comandos.get(1);
@@ -405,12 +407,15 @@ public class Main {
 			if (array_caminho.length == 1 && listaDiretorios(diretorio).contains(caminho)) caminho = diretorio + "/" + caminho;
 			ArrayList<String> lista_diretorio = criaListaDiretorios(caminho);
 			cd(lista_diretorio, diretorio, false);
+			return true;
 		}
+		return false;
 	}
 
-	public static void comandosCpMv (ArrayList<String> comandos) throws BadLocationException, IOException {
+	public static boolean comandosCpMv (ArrayList<String> comandos) throws BadLocationException, IOException {
 		if (comandos.size() <= 2) {
 			adicionaMensagem(textpane, "Especifique ambos o arquivo e o diretório de origem\n");
+			return false;
 		} else {
 			String caminho_arquivo = comandos.get(1);
 			String caminho_diretorio = comandos.get(2);
@@ -428,6 +433,7 @@ public class Main {
 			}
 			if (!arquivo_existe) {
 				adicionaMensagem(textpane, "O arquivo informado não existe\n");
+				return false;
 			} else {
 				if (arquivo_existe && diretorio_existe) {
 					if (comandos.get(0).equals("cp")) {
@@ -435,6 +441,7 @@ public class Main {
 					} else {
 						cp_mv(caminho_arquivo, caminho_diretorio, nome_arquivo, false);
 					}
+					return true;
 				} else if (arquivo_existe && array_caminho_diretorio.length == 1) {
 					if (comandos.get(0).equals("mv")) {
 						String novo_nome = comandos.get(2);
@@ -442,20 +449,25 @@ public class Main {
 						caminho_diretorio = apenasDiretorio(caminho_diretorio);
 						cp_mv(caminho_arquivo, caminho_diretorio, novo_nome, false);
 					}
+					return true;
 				}
 			}
 		}
+		return true;
 	}
 
-	public static void comandoTouch (ArrayList<String> comandos) throws BadLocationException, IOException {
+	public static boolean comandoTouch (ArrayList<String> comandos) throws BadLocationException, IOException {
 		if (comandos.size() == 1) {
 			adicionaMensagem(textpane, "O nome do arquivo deve ser passado como parâmetro\n");
+			return false;
 		} else if (comandos.size() > 2) {
 		       	adicionaMensagem(textpane, "O comando touch recebe apenas um argumento\n");
+			return false;
 		} else {
 			String nome_novo_arquivo = comandos.get(1);
 		        File novo_arquivo = new File(diretorio + "/" + nome_novo_arquivo);
 		        novo_arquivo.createNewFile();
+			return true;
 		}
 	}
 
@@ -592,8 +604,8 @@ public class Main {
 		        		System.out.println(comandos.toString());
 		        		if (comandos.size() > 0) { // Caso algum comando tenha sido executado
 						if (comandos.contains("|")) { // Pipe
+							//try {
 							String array_comandos[] = comando.split("\\|");
-							System.out.println("COmandos: " + array_comandos[0] + " " + array_comandos[1]);
 							for (int i = 0; i < array_comandos.length; i++) {
 								if (!array_comandos[i].equals("")) {
 									ArrayList<String> lista_comando_pipe = listaComandos(array_comandos[i], i);
@@ -608,13 +620,27 @@ public class Main {
 										} else if (lista_comando_pipe.get(0).equals("pwd")) {
 											resultado = pwd();
 										} else if (lista_comando_pipe.get(0).equals("mkdir")) {
-											//resultado = resultado.replace("\n", "");
 											lista_comando_pipe.add(resultado);
 											if(!comandoMkdir(lista_comando_pipe)) break;
+										} else if (lista_comando_pipe.get(0).equals("cd")) {
+											lista_comando_pipe.add(resultado);
+											if(!comandoCd(lista_comando_pipe)) break;
+										} else if (lista_comando_pipe.get(0).equals("touch")) {
+											lista_comando_pipe.add(resultado);
+											if (!comandoTouch(lista_comando_pipe)) break;
+										} else if (lista_comando_pipe.get(0).equals("cp") && lista_comando_pipe.size() == 2) {
+											lista_comando_pipe.add(resultado);
+											if (!comandosCpMv(lista_comando_pipe)) break;
+										} else if (lista_comando_pipe.get(0).equals("mv") && lista_comando_pipe.size() == 2) {
+											lista_comando_pipe.add(resultado);
+											if (!comandosCpMv(lista_comando_pipe)) break;
 										}
 									}
 								}
 							}
+							//} catch (Exception e) {
+								
+							//}
 						} if (comandos.contains("&")) { // Execução de comando em segundo plano
 							if (!comandos.get(comandos.size() - 1).equals("&")) {
 								adicionaMensagem(textpane, "Para executar arquivos em background, o caractere & deve ser o último do comando\n");	
