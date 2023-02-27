@@ -517,26 +517,6 @@ public class Main {
 		}
 	}
 
-
-	public static boolean comandoCat2 (ArrayList<String> comandos, boolean pipe) throws BadLocationException, IOException {
-		if (comandos.size() == 1) {
-			return false;
-		} else if (comandos.size() == 2) {
-			String diretorio_atual = diretorio;
-			String caminho_arquivo = comandos.get(1);
-			String array_caminho_arquivo[] = caminho_arquivo.split("/");
-			if (array_caminho_arquivo.length == 1) caminho_arquivo = diretorio + "/" + caminho_arquivo;
-			String conteudo_arquivo = aplicaCat(caminho_arquivo);
-			resultado = removeCaracteres(conteudo_arquivo);
-			System.out.println("Resultado: " + resultado);
-			adicionaMensagem(textpane, conteudo_arquivo + "\n");
-			diretorio = diretorio_atual;
-			return true;
-		} else {
-			return false;
-		}
-	}
-
 	public static void comandoPwd () throws BadLocationException {
 		adicionaMensagem(textpane, pwd() + "\n");
 	}
@@ -611,7 +591,6 @@ public class Main {
 	        		if (comando.charAt(comando.length() - 1) == '\n') {
 	        			array_comando = comando.split("\n");
 		        		String ultima_linha = array_comando[array_comando.length - 1];
-					System.out.println("ÚLTIMA LINHA: " + ultima_linha);
 		        		String array_ultima_linha[] = ultima_linha.split(" ");
 		        		System.out.println(array_ultima_linha[array_ultima_linha.length - 1]);
 		        		ArrayList<String> comandos = criaListaComandos(array_ultima_linha);
@@ -646,7 +625,7 @@ public class Main {
 												}
 											}
 											if (cat) {
-												comandoCat2(lista_comando_pipe, true);
+												comandoCat(lista_comando_pipe, true);
 											}
 											if (pwd) {
 												resultado = pwd();
@@ -682,7 +661,133 @@ public class Main {
 							if (!comandos.get(comandos.size() - 1).equals("&")) {
 								adicionaMensagem(textpane, "Para executar arquivos em background, o caractere & deve ser o último do comando\n");	
 							} else {
-								String comando_linha = "";
+								comandos.remove("&");
+								if (comandos.get(0).equals("ls")) { // Comando de listar arquivos - ls
+									Thread t = new Thread(new Runnable() {
+										@Override
+										public void run() {
+											try {
+												comandoLs(comandos);
+											} catch (Exception e) {
+												e.printStackTrace();
+											}
+										}
+									});
+									t.start();
+		        					} else if (comandos.get(0).equals("cd")) {
+									Thread t = new Thread(new Runnable() {
+										@Override
+										public void run() {
+											try {
+												comandoCd(comandos, false);
+												System.out.println("Thread finalizou");
+											} catch (Exception e) {
+												e.printStackTrace();
+											}
+										}
+									});
+									t.start();
+				        			} else if (comandos.get(0).equals("cp") || comandos.get(0).equals("mv")) { // Comando para copiar arquivos - cp
+									Thread t = new Thread(new Runnable() {
+										@Override
+										public void run() {
+											try {
+												comandosCpMv(comandos, false);
+											} catch (Exception e) {
+												e.printStackTrace();
+											}
+										}
+									});
+									t.start();
+								} else if (comandos.get(0).equals("touch")) {
+									Thread t = new Thread(new Runnable() {
+										@Override
+										public void run() {
+											try {
+												comandoTouch(comandos, false);
+											} catch (Exception e) {
+												e.printStackTrace();
+											}
+										}
+									});
+									t.start();
+				        			} else if (comandos.get(0).equals("mkdir")) {
+									Thread t = new Thread(new Runnable() {
+										@Override
+										public void run() {
+											try {
+												Thread.currentThread().sleep(3000);
+												comandoMkdir(comandos, false);
+											} catch (Exception e) {
+												e.printStackTrace();
+											}
+										}
+									});
+									t.start();
+								} else if (comandos.get(0).equals("rm")) {
+									Thread t = new Thread(new Runnable() {
+										@Override
+										public void run() {
+											try {
+												comandoRm(comandos);
+											} catch (Exception e) {
+												e.printStackTrace();
+											}
+										}
+									});
+									t.start();
+								} else if (comandos.get(0).equals("cat")) {
+									Thread t = new Thread(new Runnable() {
+										@Override
+										public void run() {
+											try {
+												comandoCat(comandos, false);
+											} catch (Exception e) {
+												e.printStackTrace();
+											}
+										}
+									});
+									t.start();
+								} else if (comandos.get(0).equals("pwd")) {
+									Thread t = new Thread(new Runnable() {
+										@Override
+										public void run() {
+											try {
+												comandoPwd();
+											} catch (Exception e) {
+												e.printStackTrace();
+											}
+										}
+									});
+									t.start();
+								} else if (comandos.get(0).equals("clear")) {
+									Thread t = new Thread(new Runnable() {
+										@Override
+										public void run() {
+											try {
+												comandoClear();
+											} catch (Exception e) {
+												e.printStackTrace();
+											}
+										}
+									});
+									t.start();
+		        					} else if (comandos.get(0).equals("exit")) {
+									Thread t = new Thread(new Runnable() {
+										@Override
+										public void run() {
+											try {
+												comandoExit();
+											} catch (Exception e) {
+												e.printStackTrace();
+											}
+										}
+									});
+									t.start();
+				        			} else {
+				        				adicionaMensagem(textpane, "Comando inválido\n");
+		        					}
+								/*String comando_linha = "";
 								for (int i = 0; i < comandos.size() - 1; i++) {
 									comando_linha = comando_linha + comandos.get(i);
 									if (i != comandos.size() - 2) comando_linha = comando_linha + " ";
@@ -696,7 +801,7 @@ public class Main {
 									br_erro.lines().forEach(System.out::println);
 								} catch (Exception e) {
 									adicionaMensagem(textpane, "Erro ao tentar executar o comando em segundo plano\n");
-								}
+								}*/
 								
 							}
 						} else if (comandos.contains(">")) { // Salva a saída de um comando em um arquivo
