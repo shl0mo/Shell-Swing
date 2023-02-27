@@ -497,6 +497,13 @@ public class Main {
 		}
 	}
 
+	public static void comandoPwd () throws BadLocationException {
+		adicionaMensagem(textpane, pwd() + "\n");
+	}
+
+	public static void comandoClear () {
+		textpane.setText("");
+	}
 	
 	public static void highlight() {
 
@@ -615,9 +622,9 @@ public class Main {
 						} else if (comandos.get(0).equals("cat")) {
 							comandoCat(comandos);
 						} else if (comandos.get(0).equals("pwd")) {
-							adicionaMensagem(textpane, pwd() + "\n");
+							comandoPwd();
 						} else if (comandos.get(0).equals("clear")) { // Comando clear
-		        				textpane.setText("");
+							comandoClear();
 		        			} else if (comandos.get(0).equals("exit")) {
 		        				frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
 		        			} else {
