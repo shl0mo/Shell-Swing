@@ -497,6 +497,8 @@ public class Main {
 							}
 							if (comandos.size() > 1) {
 								String caminho = comandos.get(1);
+								String array_caminho[] = caminho.split("/");
+								if (array_caminho.length == 1 && listaDiretorios(diretorio).contains(caminho)) caminho = diretorio + "/" + caminho;
 								ArrayList<String> lista_diretorio = criaListaDiretorios(caminho);
 								cd(lista_diretorio, diretorio, false);
 							}
