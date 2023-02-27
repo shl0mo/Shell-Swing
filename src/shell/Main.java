@@ -496,7 +496,9 @@ public class Main {
 			String array_caminho_arquivo[] = caminho_arquivo.split("/");
 			if (array_caminho_arquivo.length == 1) caminho_arquivo = diretorio + "/" + caminho_arquivo;
 			String conteudo_arquivo = aplicaCat(caminho_arquivo);
-			resultado = conteudo_arquivo;
+			resultado = removeCaracteres(conteudo_arquivo);
+			System.out.println("Resultado: " + resultado);
+			//resultado = conteudo_arquivo;
 			adicionaMensagem(textpane, conteudo_arquivo + "\n");
 			diretorio = diretorio_atual;
 			return true;
@@ -543,6 +545,17 @@ public class Main {
 			if (!array_comando[i].equals("")) lista_comandos.add(array_comando[i]);
 		}
 		return lista_comandos;
+	}
+
+	public static String removeCaracteres (String string) {
+		String nova_string = "";
+		String array_string[] = string.split("");
+		if (array_string.length >= 2) {
+			for (int i = 0; i < array_string.length - 1; i++) {
+				nova_string = nova_string + array_string[i];
+			}
+		}
+		return nova_string;
 	}
 	
 	public static void highlight() {
@@ -595,6 +608,7 @@ public class Main {
 										} else if (lista_comando_pipe.get(0).equals("pwd")) {
 											resultado = pwd();
 										} else if (lista_comando_pipe.get(0).equals("mkdir")) {
+											//resultado = resultado.replace("\n", "");
 											lista_comando_pipe.add(resultado);
 											if(!comandoMkdir(lista_comando_pipe)) break;
 										}
