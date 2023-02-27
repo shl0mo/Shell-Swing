@@ -177,9 +177,13 @@ public class Main {
 		return set_arquivos;
 	}
 
-	public static ArrayList<String> criaListaDiretorios (String caminho) {
+	public static ArrayList<String> criaListaDiretorios (String caminho) throws BadLocationException {
 		String array_caminho[] = caminho.split("/");
 		ArrayList<String> lista_diretorios = new ArrayList<>();
+		if (array_caminho.length == 1) {
+			caminho = diretorio;
+			array_caminho = caminho.split("/");
+		}
 		if (caminho.charAt(0) == '/') lista_diretorios.add("/");
 		for (String dir : array_caminho) lista_diretorios.add(dir);
 		return lista_diretorios;
@@ -240,7 +244,7 @@ public class Main {
 		} else if (novo_dir.equals("/")) {
 			diretorio = "/";
 			lista_diretorios.remove(0);
-			cd(lista_diretorios, diretorio_atual, verifica_arquivo);
+			return cd(lista_diretorios, diretorio_atual, verifica_arquivo);
 		}else if (novo_dir.equals("~") || novo_dir.equals("~/")) {
 			diretorio = "/home/" + System.getProperty("user.name");
 			lista_diretorios.remove(0);
@@ -267,7 +271,8 @@ public class Main {
 
 	public static void cp_mv (String caminho_arquivo, String caminho_destino, String nome_arquivo, boolean copiar) throws IOException {
 		if (caminho_arquivo.charAt(0) == '~') caminho_arquivo = formataPastaUsuario(caminho_arquivo);
-		if (caminho_destino.charAt(0) == '~') caminho_destino = formataPastaUsuario(caminho_destino) + "/" + nome_arquivo ;
+		if (caminho_destino.charAt(0) == '~') caminho_destino = formataPastaUsuario(caminho_destino) + "/" + nome_arquivo;
+		if (caminho_destino.equals(diretorio)) caminho_destino = caminho_destino + "/" + nome_arquivo;
 		File arquivo_origem = null;
 		arquivo_origem = new File(caminho_arquivo);
 		File arquivo_destino = new File(caminho_destino);
@@ -380,18 +385,24 @@ public class Main {
 								String nome_arquivo = nomeArquivoDiretorio(caminho_novo_arquivo);
 								String array_caminho_novo_arquivo[] = caminho_novo_arquivo.split("/");
 								String caminho_diretorio = "";
-								for (int i = 0; i < array_caminho_novo_arquivo.length - 1; i++) {
-									caminho_diretorio = caminho_diretorio + array_caminho_novo_arquivo[i] + "/";
+								if (array_caminho_novo_arquivo.length == 1) {
+									nome_arquivo = comandos.get(3);
+									caminho_diretorio = diretorio;
+								} else {
+									for (int i = 0; i < array_caminho_novo_arquivo.length - 1; i++) {
+										caminho_diretorio = caminho_diretorio + array_caminho_novo_arquivo[i] + "/";
+									}
 								}
-								ArrayList<Boolean> lista_existem = existemArquivoDiretorio(caminho_arquivo_cat, caminho_diretorio);
+								ArrayList<Boolean> lista_existem = new ArrayList<>();
+								lista_existem = existemArquivoDiretorio(caminho_arquivo_cat, caminho_diretorio);
 								boolean arquivo_existe = lista_existem.get(0);
 								boolean diretorio_existe = lista_existem.get(1);
 								if (!arquivo_existe && !diretorio_existe) {
 									adicionaMensagem(textpane, "Arquivo de origem e diretório de destino inválidos\n");
 								} else if (!arquivo_existe) {
 									adicionaMensagem(textpane, "O arquivo informado não existe\n");
-								} else if (!diretorio_existe) {
-									
+								} else if (!diretorio_existe) {				
+									adicionaMensagem(textpane, "O diretório informado não existe\n");
 								} else {
 									cp_mv(caminho_arquivo_cat, caminho_diretorio, nome_arquivo, true);
 								}
