@@ -391,6 +391,21 @@ public class Main {
 		}
 	}
 
+	public static void comandoCd (ArrayList<String> comandos) throws BadLocationException {
+		if (comandos.size() == 1) {
+			adicionaMensagem(textpane, "Especifique o caminho\n");
+		} else if (comandos.size() > 2) {
+			adicionaMensagem(textpane, "O comando suporta apenas um parâmetro\n");
+		}
+		if (comandos.size() > 1) {
+			String caminho = comandos.get(1);
+			String array_caminho[] = caminho.split("/");
+			if (array_caminho.length == 1 && listaDiretorios(diretorio).contains(caminho)) caminho = diretorio + "/" + caminho;
+			ArrayList<String> lista_diretorio = criaListaDiretorios(caminho);
+			cd(lista_diretorio, diretorio, false);
+		}
+	}
+
 	
 	public static void highlight() {
 
@@ -497,18 +512,7 @@ public class Main {
 						} else if (comandos.get(0).equals("ls")) { // Comando de listar arquivos - ls
 							comandoLs(comandos);
 		        			} else if (comandos.get(0).equals("cd")) {
-							if (comandos.size() == 1) {
-								adicionaMensagem(textpane, "Especifique o caminho\n");
-							} else if (comandos.size() > 2) {
-								adicionaMensagem(textpane, "O comando suporta apenas um parâmetro\n");
-							}
-							if (comandos.size() > 1) {
-								String caminho = comandos.get(1);
-								String array_caminho[] = caminho.split("/");
-								if (array_caminho.length == 1 && listaDiretorios(diretorio).contains(caminho)) caminho = diretorio + "/" + caminho;
-								ArrayList<String> lista_diretorio = criaListaDiretorios(caminho);
-								cd(lista_diretorio, diretorio, false);
-							}
+							comandoCd(comandos);
 		        			} else if (comandos.get(0).equals("cp") || comandos.get(0).equals("mv")) { // Comando para copiar arquivos - cp
 							if (comandos.size() <= 2) {
 								adicionaMensagem(textpane, "Especifique ambos o arquivo e o diretório de origem\n");
