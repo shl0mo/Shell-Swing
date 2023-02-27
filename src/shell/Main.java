@@ -50,6 +50,7 @@ public class Main {
 	static int largura_janela = 800;
 	static int altura_janela = 500;
 	static String diretorio = System.getProperty("user.dir");
+	static String resultado = "";
 	
 	public static void main (String [] args) throws BadLocationException {
 		frame = new JFrame("Shell");
@@ -458,14 +459,17 @@ public class Main {
 		}
 	}
 
-	public static void comandoMkdir (ArrayList<String> comandos) throws BadLocationException, IOException {
+	public static boolean comandoMkdir (ArrayList<String> comandos) throws BadLocationException, IOException {
 		if (comandos.size() == 1) {
 			adicionaMensagem(textpane, "Especifique o nome do diretório a ser criado\n");
+			return false;
 		} else if (comandos.size() > 2) {
 			adicionaMensagem(textpane, "O comando mkdir recebe apenas um argumento\n");
+			return false;
 		} else {
 			String nome_diretorio = comandos.get(1);
 			Files.createDirectories(Paths.get(diretorio + "/" + nome_diretorio));
+			return true;
 		}
 	}
 
@@ -482,19 +486,23 @@ public class Main {
 		}
 	}
 
-	public static void comandoCat (ArrayList<String> comandos) throws BadLocationException, IOException {
+	public static boolean comandoCat (ArrayList<String> comandos) throws BadLocationException, IOException {
 		if (comandos.size() == 1) {
 			adicionaMensagem(textpane, "O nome do arquivo deve ser passado como argumento\n");
+			return false;
 		} else if (comandos.size() == 2) {
 			String diretorio_atual = diretorio;
 			String caminho_arquivo = comandos.get(1);
 			String array_caminho_arquivo[] = caminho_arquivo.split("/");
 			if (array_caminho_arquivo.length == 1) caminho_arquivo = diretorio + "/" + caminho_arquivo;
 			String conteudo_arquivo = aplicaCat(caminho_arquivo);
+			resultado = conteudo_arquivo;
 			adicionaMensagem(textpane, conteudo_arquivo + "\n");
 			diretorio = diretorio_atual;
+			return true;
 		} else {
 			adicionaMensagem(textpane, "O comando cat recebe apenas um argumento\n");
+			return false;
 		}
 	}
 
@@ -525,6 +533,17 @@ public class Main {
 		comandos = novos_comandos;
 		return comandos;
 	}
+
+	public static ArrayList<String> listaComandos (String comando, int i_inicial) {
+		String array_comando[] = comando.split(" ");
+		ArrayList<String> lista_comandos = new ArrayList<>();
+		int inicial = 0;
+		if (i_inicial == 0) inicial = 2;
+		for (int i = inicial; i < array_comando.length; i++) {
+			if (!array_comando[i].equals("")) lista_comandos.add(array_comando[i]);
+		}
+		return lista_comandos;
+	}
 	
 	public static void highlight() {
 
@@ -553,17 +572,36 @@ public class Main {
 	        		if (comando.charAt(comando.length() - 1) == '\n') {
 	        			array_comando = comando.split("\n");
 		        		String ultima_linha = array_comando[array_comando.length - 1];
+					System.out.println("ÚLTIMA LINHA: " + ultima_linha);
 		        		String array_ultima_linha[] = ultima_linha.split(" ");
 		        		System.out.println(array_ultima_linha[array_ultima_linha.length - 1]);
 		        		ArrayList<String> comandos = criaListaComandos(array_ultima_linha);
 		        		System.out.println(comandos.toString());
 		        		if (comandos.size() > 0) { // Caso algum comando tenha sido executado
-						if (comandos.contains("|")) {
-							String array_comandos[] = comando.split("|");
-							//for (String comando: array_comandos) {
-								
-							//}
-						} if (comandos.contains("&")) {
+						if (comandos.contains("|")) { // Pipe
+							String array_comandos[] = comando.split("\\|");
+							System.out.println("COmandos: " + array_comandos[0] + " " + array_comandos[1]);
+							for (int i = 0; i < array_comandos.length; i++) {
+								if (!array_comandos[i].equals("")) {
+									ArrayList<String> lista_comando_pipe = listaComandos(array_comandos[i], i);
+									if (lista_comando_pipe.size() > 0) {
+										System.out.println("LISTA: " + lista_comando_pipe.toString());
+										if (i == array_comandos.length - 1) {
+											lista_comando_pipe.set(lista_comando_pipe.size() - 1, removeEnter(lista_comando_pipe.get(lista_comando_pipe.size() - i)));
+										}
+										if (lista_comando_pipe.get(0).equals("cat")) {
+											if (!resultado.equals("")) lista_comando_pipe.set(1, resultado);
+											if (!comandoCat(lista_comando_pipe)) break;										
+										} else if (lista_comando_pipe.get(0).equals("pwd")) {
+											resultado = pwd();
+										} else if (lista_comando_pipe.get(0).equals("mkdir")) {
+											lista_comando_pipe.add(resultado);
+											if(!comandoMkdir(lista_comando_pipe)) break;
+										}
+									}
+								}
+							}
+						} if (comandos.contains("&")) { // Execução de comando em segundo plano
 							if (!comandos.get(comandos.size() - 1).equals("&")) {
 								adicionaMensagem(textpane, "Para executar arquivos em background, o caractere & deve ser o último do comando\n");	
 							} else {
