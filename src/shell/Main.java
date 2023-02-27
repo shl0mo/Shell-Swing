@@ -557,15 +557,29 @@ public class Main {
 		        					novo_arquivo.createNewFile();
 		        				}
 		        			} else if (comandos.get(0).equals("mkdir")) {
-							
+							if (comandos.size() == 1) {
+								adicionaMensagem(textpane, "Especifique o nome do diretório a ser criado\n");
+							} else if (comandos.size() > 2) {
+								adicionaMensagem(textpane, "O comando mkdir recebe apenas um argumento\n");
+							} else {
+								String nome_diretorio = comandos.get(1);
+								Files.createDirectories(Paths.get(diretorio + "/" + nome_diretorio));
+							}
+								
 						} else if (comandos.get(0).equals("rm")) {
-							String nome_arquivo = comandos.get(1);
-							if (nome_arquivo.charAt(0) == '~') nome_arquivo = formataPastaUsuario(nome_arquivo);
-							File arquivo = new File(nome_arquivo);
-							arquivo.delete();
+							if (comandos.size() == 1) {
+								adicionaMensagem(textpane, "Especifique o nome do arquivo ou diretório a ser excluído\n");
+							} else if (comandos.size() > 2) {
+								adicionaMensagem(textpane, "O comando rm recebe apenas um argumento\n");
+							} else {
+								String nome_arquivo = comandos.get(1);
+								if (nome_arquivo.charAt(0) == '~') nome_arquivo = formataPastaUsuario(nome_arquivo);
+								File arquivo = new File(nome_arquivo);
+								arquivo.delete();
+							}
 						} else if (comandos.get(0).equals("cat")) {
 		        				if (comandos.size() == 1) {
-		        					adicionaMensagem(textpane, "O nome do arquivo deve ser passado como parâmetro\n");
+		        					adicionaMensagem(textpane, "O nome do arquivo deve ser passado como argumento\n");
 		        				} else if (comandos.size() == 2) {
 								String diretorio_atual = diretorio;
 								String caminho_arquivo = comandos.get(1);
