@@ -381,6 +381,16 @@ public class Main {
 		}
 	}
 
+	public static void comandoLs (ArrayList<String> comandos) {
+		if (comandos.size() == 1) {
+			String string_listagem = ls(false);
+			textpane.setText(textpane.getText() + string_listagem);
+		} else if (comandos.size() == 2 && comandos.get(1).equals("-a")) {
+			String string_listagem = ls(true);
+		        textpane.setText(textpane.getText() + string_listagem);
+		}
+	}
+
 	
 	public static void highlight() {
 
@@ -485,13 +495,7 @@ public class Main {
 								adicionaMensagem(textpane, "Para o redirecionador de saída (>), o operador da esquerda deve ser o comando cat ou o ls e o da direita o nome ou caminho e nome de um novo arquivo\n");
 							}
 						} else if (comandos.get(0).equals("ls")) { // Comando de listar arquivos - ls
-		        				if (comandos.size() == 1) {
-								String string_listagem = ls(false);
-								textpane.setText(textpane.getText() + string_listagem);
-		        				} else if (comandos.size() == 2 && comandos.get(1).equals("-a")) {
-								String string_listagem = ls(true);
-		        					textpane.setText(textpane.getText() + string_listagem);
-		        				}
+							comandoLs(comandos);
 		        			} else if (comandos.get(0).equals("cd")) {
 							if (comandos.size() == 1) {
 								adicionaMensagem(textpane, "Especifique o caminho\n");
