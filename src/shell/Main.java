@@ -445,6 +445,29 @@ public class Main {
 		}
 	}
 
+	public static void comandoTouch (ArrayList<String> comandos) throws BadLocationException, IOException {
+		if (comandos.size() == 1) {
+			adicionaMensagem(textpane, "O nome do arquivo deve ser passado como parâmetro\n");
+		} else if (comandos.size() > 2) {
+		       	adicionaMensagem(textpane, "O comando touch recebe apenas um argumento\n");
+		} else {
+			String nome_novo_arquivo = comandos.get(1);
+		        File novo_arquivo = new File(diretorio + "/" + nome_novo_arquivo);
+		        novo_arquivo.createNewFile();
+		}
+	}
+
+	public static void comandoMkdir (ArrayList<String> comandos) throws BadLocationException, IOException {
+		if (comandos.size() == 1) {
+			adicionaMensagem(textpane, "Especifique o nome do diretório a ser criado\n");
+		} else if (comandos.size() > 2) {
+			adicionaMensagem(textpane, "O comando mkdir recebe apenas um argumento\n");
+		} else {
+			String nome_diretorio = comandos.get(1);
+			Files.createDirectories(Paths.get(diretorio + "/" + nome_diretorio));
+		}
+	}
+
 	
 	public static void highlight() {
 
@@ -555,25 +578,9 @@ public class Main {
 		        			} else if (comandos.get(0).equals("cp") || comandos.get(0).equals("mv")) { // Comando para copiar arquivos - cp
 							comandosCpMv(comandos);
 						} else if (comandos.get(0).equals("touch")) {
-		        				if (comandos.size() == 1) {
-		        					adicionaMensagem(textpane, "O nome do arquivo deve ser passado como parâmetro\n");
-		        				} else if (comandos.size() > 2) {
-		        					adicionaMensagem(textpane, "O comando touch recebe apenas um argumento\n");
-		        				} else {
-		        					String nome_novo_arquivo = comandos.get(1);
-		        					File novo_arquivo = new File(diretorio + "/" + nome_novo_arquivo);
-		        					novo_arquivo.createNewFile();
-		        				}
+							comandoTouch(comandos);
 		        			} else if (comandos.get(0).equals("mkdir")) {
-							if (comandos.size() == 1) {
-								adicionaMensagem(textpane, "Especifique o nome do diretório a ser criado\n");
-							} else if (comandos.size() > 2) {
-								adicionaMensagem(textpane, "O comando mkdir recebe apenas um argumento\n");
-							} else {
-								String nome_diretorio = comandos.get(1);
-								Files.createDirectories(Paths.get(diretorio + "/" + nome_diretorio));
-							}
-								
+							comandoMkdir(comandos);	
 						} else if (comandos.get(0).equals("rm")) {
 							if (comandos.size() == 1) {
 								adicionaMensagem(textpane, "Especifique o nome do arquivo ou diretório a ser excluído\n");
