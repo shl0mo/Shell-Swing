@@ -297,7 +297,10 @@ public class Main {
 		if (caminho_destino.charAt(0) == '~') caminho_destino = formataPastaUsuario(caminho_destino);
 		File arquivo_origem = new File(caminho_arquivo);
 		File arquivo_destino = new File(caminho_destino);
-		if (arquivo_destino.isDirectory()) caminho_destino = caminho_destino + "/" + nome_arquivo;
+		if (arquivo_destino.isDirectory()) {
+			caminho_destino = caminho_destino + "/" + nome_arquivo;
+			arquivo_destino = new File(caminho_destino);
+		}
 		if (copiar) Files.copy(arquivo_origem.toPath(), arquivo_destino.toPath());
 		else Files.move(arquivo_origem.toPath(), arquivo_destino.toPath());
 	}
