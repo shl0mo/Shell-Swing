@@ -509,6 +509,22 @@ public class Main {
 	public static void comandoExit () {
 		frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
 	}
+
+	public static ArrayList<String> criaListaComandos (String array_ultima_linha[]) {
+		ArrayList<String> comandos = new ArrayList<>();
+		for (int i = 2; i < array_ultima_linha.length; i++) {
+			if (!array_ultima_linha[i].equals("")) {
+		        	if (i == array_ultima_linha.length - 1) comandos.add(array_ultima_linha[i].replace("\n", ""));
+		        	else comandos.add(array_ultima_linha[i]);
+		        }
+		}
+		ArrayList<String> novos_comandos = new ArrayList<>();
+		for (String cmd: comandos) {
+			if (!cmd.equals("\n") && !(cmd.length() == 0)) novos_comandos.add(cmd);
+		}
+		comandos = novos_comandos;
+		return comandos;
+	}
 	
 	public static void highlight() {
 
@@ -539,21 +555,15 @@ public class Main {
 		        		String ultima_linha = array_comando[array_comando.length - 1];
 		        		String array_ultima_linha[] = ultima_linha.split(" ");
 		        		System.out.println(array_ultima_linha[array_ultima_linha.length - 1]);
-		        		ArrayList<String> comandos = new ArrayList<>();
-		        		for (int i = 2; i < array_ultima_linha.length; i++) {
-		        			if (!array_ultima_linha[i].equals("")) {
-		        				if (i == array_ultima_linha.length - 1) comandos.add(array_ultima_linha[i].replace("\n", ""));
-		        				else comandos.add(array_ultima_linha[i]);
-		        			}
-		        		}
-		        		ArrayList<String> novos_comandos = new ArrayList<>();
-		        		for (String cmd: comandos) {
-		        			if (!cmd.equals("\n") && !(cmd.length() == 0)) novos_comandos.add(cmd);
-		        		}
-		        		comandos = novos_comandos;
+		        		ArrayList<String> comandos = criaListaComandos(array_ultima_linha);
 		        		System.out.println(comandos.toString());
 		        		if (comandos.size() > 0) { // Caso algum comando tenha sido executado
-						if (comandos.contains("&")) {
+						if (comandos.contains("|")) {
+							String array_comandos[] = comando.split("|");
+							//for (String comando: array_comandos) {
+								
+							//}
+						} if (comandos.contains("&")) {
 							if (!comandos.get(comandos.size() - 1).equals("&")) {
 								adicionaMensagem(textpane, "Para executar arquivos em background, o caractere & deve ser o último do comando\n");	
 							} else {
