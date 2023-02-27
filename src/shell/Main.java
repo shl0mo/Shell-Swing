@@ -481,6 +481,22 @@ public class Main {
 		}
 	}
 
+	public static void comandoCat (ArrayList<String> comandos) throws BadLocationException, IOException {
+		if (comandos.size() == 1) {
+			adicionaMensagem(textpane, "O nome do arquivo deve ser passado como argumento\n");
+		} else if (comandos.size() == 2) {
+			String diretorio_atual = diretorio;
+			String caminho_arquivo = comandos.get(1);
+			String array_caminho_arquivo[] = caminho_arquivo.split("/");
+			if (array_caminho_arquivo.length == 1) caminho_arquivo = diretorio + "/" + caminho_arquivo;
+			String conteudo_arquivo = aplicaCat(caminho_arquivo);
+			adicionaMensagem(textpane, conteudo_arquivo + "\n");
+			diretorio = diretorio_atual;
+		} else {
+			adicionaMensagem(textpane, "O comando cat recebe apenas um argumento\n");
+		}
+	}
+
 	
 	public static void highlight() {
 
@@ -597,20 +613,8 @@ public class Main {
 						} else if (comandos.get(0).equals("rm")) {
 							comandoRm(comandos);
 						} else if (comandos.get(0).equals("cat")) {
-		        				if (comandos.size() == 1) {
-		        					adicionaMensagem(textpane, "O nome do arquivo deve ser passado como argumento\n");
-		        				} else if (comandos.size() == 2) {
-								String diretorio_atual = diretorio;
-								String caminho_arquivo = comandos.get(1);
-								String array_caminho_arquivo[] = caminho_arquivo.split("/");
-								if (array_caminho_arquivo.length == 1) caminho_arquivo = diretorio + "/" + caminho_arquivo;
-								String conteudo_arquivo = aplicaCat(caminho_arquivo);
-								adicionaMensagem(textpane, conteudo_arquivo + "\n");
-								diretorio = diretorio_atual;
-		        				} else {
-								adicionaMensagem(textpane, "O comando cat recebe apenas um argumento\n");
-							}
-		        			} else if (comandos.get(0).equals("pwd")) {
+							comandoCat(comandos);
+						} else if (comandos.get(0).equals("pwd")) {
 							adicionaMensagem(textpane, pwd() + "\n");
 						} else if (comandos.get(0).equals("clear")) { // Comando clear
 		        				textpane.setText("");
