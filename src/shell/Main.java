@@ -180,6 +180,10 @@ public class Main {
 	public static ArrayList<String> criaListaDiretorios (String caminho) throws BadLocationException {
 		String array_caminho[] = caminho.split("/");
 		ArrayList<String> lista_diretorios = new ArrayList<>();
+		if (caminho.equals("..") || caminho.equals("../")) {
+			lista_diretorios.add("..");
+			return lista_diretorios;
+		}
 		if (array_caminho.length == 1) {
 			caminho = diretorio;
 			array_caminho = caminho.split("/");
@@ -237,9 +241,10 @@ public class Main {
 			diretorio = "";
 			for (int i = 0; i < array_diretorio.length; ++i) {
 				if (i != 0 && i != array_diretorio.length - 1) diretorio = diretorio + "/";
-				diretorio = diretorio + array_diretorio[i];
+				if (i != array_diretorio.length - 1) diretorio = diretorio + array_diretorio[i];
 			}
 			lista_diretorios.remove(0);
+			diretorio_atual = diretorio;
 			return cd(lista_diretorios, diretorio_atual, verifica_arquivo);
 		} else if (novo_dir.equals("/")) {
 			diretorio = "/";
@@ -306,6 +311,22 @@ public class Main {
 		cd(lista_arquivo, diretorio, true);
 		String conteudo_arquivo = cat(caminho_arquivo);
 		return conteudo_arquivo;
+	}
+
+	public static String ls (boolean _a) {
+		String string_listagem = "";
+		if (!_a) {
+			Set<String> set_arquivos = listaArquivos(diretorio);
+			for (String nome_arquivo: set_arquivos) {
+				if (!(nome_arquivo.charAt(0) == '.')) string_listagem = string_listagem + nome_arquivo + "\n";
+			}
+		} else {
+		       	Set<String> set_arquivos = listaArquivos(diretorio);
+		       	for (String nome_arquivo: set_arquivos) {
+		        	string_listagem = string_listagem + nome_arquivo + "\n";
+		        }
+		}
+		return string_listagem;
 	}
 
 	public static String pwd () {
@@ -407,7 +428,7 @@ public class Main {
 									cp_mv(caminho_arquivo_cat, caminho_diretorio, nome_arquivo, true);
 								}
 							} else if (comandos.get(0).equals("ls") && comandos.size() == 3 && comandos.get(1).equals(">")) { // Se o comando a ter a saída salva em um arquivo for o ls, sem a flag -a
-								
+
 							} else if (comandos.get(0).equals("ls") && comandos.size() == 4 && comandos.get(1).equals("-a") && comandos.get(2).equals(">")) { // Se o comando a ter a saída salva em um arquivo for o ls, com a flag -a
 								
 							} else {
@@ -415,19 +436,10 @@ public class Main {
 							}
 						} else if (comandos.get(0).equals("ls")) { // Comando de listar arquivos - ls
 		        				if (comandos.size() == 1) {
-		        					String string_listagem = "";
-		        					Set<String> set_arquivos = listaArquivos(diretorio);
-		        					for (String nome_arquivo: set_arquivos) {
-		        						if (!(nome_arquivo.charAt(0) == '.')) string_listagem = string_listagem + nome_arquivo + "\n";
-		        					}
-		        					System.out.println(string_listagem);
-		        					textpane.setText(textpane.getText() + string_listagem);
+								String string_listagem = ls(false);
+								textpane.setText(textpane.getText() + string_listagem);
 		        				} else if (comandos.size() == 2 && comandos.get(1).equals("-a")) {
-		        					String string_listagem = "";
-		        					Set<String> set_arquivos = listaArquivos(diretorio);
-		        					for (String nome_arquivo: set_arquivos) {
-		        						string_listagem = string_listagem + nome_arquivo + "\n";
-		        					}
+								String string_listagem = ls(true);
 		        					textpane.setText(textpane.getText() + string_listagem);
 		        				}
 		        			} else if (comandos.get(0).equals("cd")) {
