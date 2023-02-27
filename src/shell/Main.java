@@ -309,8 +309,6 @@ public class Main {
 	public static String cat (String caminho_arquivo) throws BadLocationException, IOException, UnsupportedEncodingException {
 		if (!caminho_arquivo.contains("/")) caminho_arquivo = diretorio + "/" + caminho_arquivo;
 		if (caminho_arquivo.charAt(0) == '~') caminho_arquivo = formataPastaUsuario(caminho_arquivo);
-		System.out.println("Caminho - " + caminho_arquivo);
-		//if (caminho_arquivo.equals(diretorio)) caminho_arquivo = caminho_arqui
 		boolean arquivo_encontrado = true;
 		BufferedReader br = null;
 		String conteudo_arquivo = "";
@@ -393,12 +391,12 @@ public class Main {
 		}
 	}
 
-	public static boolean comandoCd (ArrayList<String> comandos) throws BadLocationException {
+	public static boolean comandoCd (ArrayList<String> comandos, boolean pipe) throws BadLocationException {
 		if (comandos.size() == 1) {
-			adicionaMensagem(textpane, "Especifique o caminho\n");
+			if (!pipe) adicionaMensagem(textpane, "Especifique o caminho\n");
 			return false;
 		} else if (comandos.size() > 2) {
-			adicionaMensagem(textpane, "O comando suporta apenas um parâmetro\n");
+			if (!pipe) adicionaMensagem(textpane, "O comando suporta apenas um parâmetro\n");
 			return false;
 		}
 		if (comandos.size() > 1) {
@@ -412,9 +410,9 @@ public class Main {
 		return false;
 	}
 
-	public static boolean comandosCpMv (ArrayList<String> comandos) throws BadLocationException, IOException {
+	public static boolean comandosCpMv (ArrayList<String> comandos, boolean pipe) throws BadLocationException, IOException {
 		if (comandos.size() <= 2) {
-			adicionaMensagem(textpane, "Especifique ambos o arquivo e o diretório de origem\n");
+			if (!pipe) adicionaMensagem(textpane, "Especifique ambos o arquivo e o diretório de origem\n");
 			return false;
 		} else {
 			String caminho_arquivo = comandos.get(1);
@@ -432,7 +430,7 @@ public class Main {
 				caminho_diretorio = diretorio + "/" + comandos.get(2);
 			}
 			if (!arquivo_existe) {
-				adicionaMensagem(textpane, "O arquivo informado não existe\n");
+				if (!pipe) adicionaMensagem(textpane, "O arquivo informado não existe\n");
 				return false;
 			} else {
 				if (arquivo_existe && diretorio_existe) {
@@ -456,12 +454,12 @@ public class Main {
 		return true;
 	}
 
-	public static boolean comandoTouch (ArrayList<String> comandos) throws BadLocationException, IOException {
+	public static boolean comandoTouch (ArrayList<String> comandos, boolean pipe) throws BadLocationException, IOException {
 		if (comandos.size() == 1) {
-			adicionaMensagem(textpane, "O nome do arquivo deve ser passado como parâmetro\n");
+			if (!pipe) adicionaMensagem(textpane, "O nome do arquivo deve ser passado como parâmetro\n");
 			return false;
 		} else if (comandos.size() > 2) {
-		       	adicionaMensagem(textpane, "O comando touch recebe apenas um argumento\n");
+		       	if (!pipe) adicionaMensagem(textpane, "O comando touch recebe apenas um argumento\n");
 			return false;
 		} else {
 			String nome_novo_arquivo = comandos.get(1);
@@ -471,12 +469,12 @@ public class Main {
 		}
 	}
 
-	public static boolean comandoMkdir (ArrayList<String> comandos) throws BadLocationException, IOException {
+	public static boolean comandoMkdir (ArrayList<String> comandos, boolean pipe) throws BadLocationException, IOException {
 		if (comandos.size() == 1) {
-			adicionaMensagem(textpane, "Especifique o nome do diretório a ser criado\n");
+			if (!pipe) adicionaMensagem(textpane, "Especifique o nome do diretório a ser criado\n");
 			return false;
 		} else if (comandos.size() > 2) {
-			adicionaMensagem(textpane, "O comando mkdir recebe apenas um argumento\n");
+			if (!pipe) adicionaMensagem(textpane, "O comando mkdir recebe apenas um argumento\n");
 			return false;
 		} else {
 			String nome_diretorio = comandos.get(1);
@@ -498,9 +496,9 @@ public class Main {
 		}
 	}
 
-	public static boolean comandoCat (ArrayList<String> comandos) throws BadLocationException, IOException {
+	public static boolean comandoCat (ArrayList<String> comandos, boolean pipe) throws BadLocationException, IOException {
 		if (comandos.size() == 1) {
-			adicionaMensagem(textpane, "O nome do arquivo deve ser passado como argumento\n");
+			if (!pipe) adicionaMensagem(textpane, "O nome do arquivo deve ser passado como argumento\n");
 			return false;
 		} else if (comandos.size() == 2) {
 			String diretorio_atual = diretorio;
@@ -510,12 +508,31 @@ public class Main {
 			String conteudo_arquivo = aplicaCat(caminho_arquivo);
 			resultado = removeCaracteres(conteudo_arquivo);
 			System.out.println("Resultado: " + resultado);
-			//resultado = conteudo_arquivo;
 			adicionaMensagem(textpane, conteudo_arquivo + "\n");
 			diretorio = diretorio_atual;
 			return true;
 		} else {
-			adicionaMensagem(textpane, "O comando cat recebe apenas um argumento\n");
+			if (!pipe) adicionaMensagem(textpane, "O comando cat recebe apenas um argumento\n");
+			return false;
+		}
+	}
+
+
+	public static boolean comandoCat2 (ArrayList<String> comandos, boolean pipe) throws BadLocationException, IOException {
+		if (comandos.size() == 1) {
+			return false;
+		} else if (comandos.size() == 2) {
+			String diretorio_atual = diretorio;
+			String caminho_arquivo = comandos.get(1);
+			String array_caminho_arquivo[] = caminho_arquivo.split("/");
+			if (array_caminho_arquivo.length == 1) caminho_arquivo = diretorio + "/" + caminho_arquivo;
+			String conteudo_arquivo = aplicaCat(caminho_arquivo);
+			resultado = removeCaracteres(conteudo_arquivo);
+			System.out.println("Resultado: " + resultado);
+			adicionaMensagem(textpane, conteudo_arquivo + "\n");
+			diretorio = diretorio_atual;
+			return true;
+		} else {
 			return false;
 		}
 	}
@@ -548,12 +565,9 @@ public class Main {
 		return comandos;
 	}
 
-	public static ArrayList<String> listaComandos (String comando, int i_inicial) {
-		String array_comando[] = comando.split(" ");
+	public static ArrayList<String> listaComandos (String array_comando[]) {
 		ArrayList<String> lista_comandos = new ArrayList<>();
-		int inicial = 0;
-		if (i_inicial == 0) inicial = 2;
-		for (int i = inicial; i < array_comando.length; i++) {
+		for (int i = 0; i < array_comando.length; i++) {
 			if (!array_comando[i].equals("")) lista_comandos.add(array_comando[i]);
 		}
 		return lista_comandos;
@@ -605,43 +619,66 @@ public class Main {
 		        		if (comandos.size() > 0) { // Caso algum comando tenha sido executado
 						if (comandos.contains("|")) { // Pipe
 							//try {
-							String array_comandos[] = comando.split("\\|");
-							for (int i = 0; i < array_comandos.length; i++) {
-								if (!array_comandos[i].equals("")) {
-									ArrayList<String> lista_comando_pipe = listaComandos(array_comandos[i], i);
-									if (lista_comando_pipe.size() > 0) {
-										System.out.println("LISTA: " + lista_comando_pipe.toString());
-										if (i == array_comandos.length - 1) {
-											lista_comando_pipe.set(lista_comando_pipe.size() - 1, removeEnter(lista_comando_pipe.get(lista_comando_pipe.size() - i)));
+								String array_linhas_pipe[] = comando.split("\n");
+								String ultima_linha_pipe = array_linhas_pipe[array_linhas_pipe.length - 1];
+								String array_diretorio_comando[] = ultima_linha_pipe.split("\\$");
+								String pipe_comandos = array_diretorio_comando[1];
+								String array_pipe[] = pipe_comandos.split("\\|");
+								//System.out.println("COMANDO: " + array_ultimo_comando[0] + " " + array_ultimo_comando[1]);
+								for (int i = 0; i < array_pipe.length; i++) {
+									if (!array_pipe[i].equals("")) {
+										String array_comandos[] = array_pipe[i].split(" ");
+										ArrayList<String> lista_comando_pipe = listaComandos(array_comandos);
+										if (lista_comando_pipe.size() > 0) {
+											boolean cat = lista_comando_pipe.get(0).equals("cat");
+											boolean mkdir = lista_comando_pipe.get(0).equals("mkdir");
+											boolean pwd = lista_comando_pipe.get(0).equals("pwd");
+											boolean cd = lista_comando_pipe.get(0).equals("cd");
+											boolean touch = lista_comando_pipe.get(0).equals("touch");
+											boolean cp = lista_comando_pipe.get(0).equals("cp");
+											boolean mv = lista_comando_pipe.get(0).equals("mv");
+											if (lista_comando_pipe.size() > 0) {
+												if (i == 0) {
+													lista_comando_pipe.set(0, lista_comando_pipe.get(0).replace(" ", ""));
+												}
+												if (i == array_comandos.length - 1) {
+													lista_comando_pipe.set(lista_comando_pipe.size() - 1, removeEnter(lista_comando_pipe.get(lista_comando_pipe.size() - i)));
+												}
+											}
+											if (cat) {
+												comandoCat2(lista_comando_pipe, true);
+											}
+											if (pwd) {
+												resultado = pwd();
+											}
+											if (mkdir) {
+												lista_comando_pipe.add(resultado);
+												comandoMkdir(lista_comando_pipe, true);
+											}
+											if (cd) {
+												lista_comando_pipe.add(resultado);
+												comandoCd(lista_comando_pipe, true);
+											}
+											if (touch) {
+												lista_comando_pipe.add(resultado);
+												comandoTouch(lista_comando_pipe, true);
+											}
+											if (cp && lista_comando_pipe.size() == 2) {
+												lista_comando_pipe.add(resultado);
+												comandosCpMv(lista_comando_pipe, true);
+											}
+											if (mv && lista_comando_pipe.size() == 2) {
+												lista_comando_pipe.add(resultado);
+												comandosCpMv(lista_comando_pipe, true);
+											}
 										}
-										if (lista_comando_pipe.get(0).equals("cat")) {
-											if (!resultado.equals("")) lista_comando_pipe.set(1, resultado);
-											if (!comandoCat(lista_comando_pipe)) break;										
-										} else if (lista_comando_pipe.get(0).equals("pwd")) {
-											resultado = pwd();
-										} else if (lista_comando_pipe.get(0).equals("mkdir")) {
-											lista_comando_pipe.add(resultado);
-											if(!comandoMkdir(lista_comando_pipe)) break;
-										} else if (lista_comando_pipe.get(0).equals("cd")) {
-											lista_comando_pipe.add(resultado);
-											if(!comandoCd(lista_comando_pipe)) break;
-										} else if (lista_comando_pipe.get(0).equals("touch")) {
-											lista_comando_pipe.add(resultado);
-											if (!comandoTouch(lista_comando_pipe)) break;
-										} else if (lista_comando_pipe.get(0).equals("cp") && lista_comando_pipe.size() == 2) {
-											lista_comando_pipe.add(resultado);
-											if (!comandosCpMv(lista_comando_pipe)) break;
-										} else if (lista_comando_pipe.get(0).equals("mv") && lista_comando_pipe.size() == 2) {
-											lista_comando_pipe.add(resultado);
-											if (!comandosCpMv(lista_comando_pipe)) break;
-										}
+										System.out.println(i);
 									}
 								}
-							}
 							//} catch (Exception e) {
 								
 							//}
-						} if (comandos.contains("&")) { // Execução de comando em segundo plano
+						} else if (comandos.contains("&")) { // Execução de comando em segundo plano
 							if (!comandos.get(comandos.size() - 1).equals("&")) {
 								adicionaMensagem(textpane, "Para executar arquivos em background, o caractere & deve ser o último do comando\n");	
 							} else {
@@ -706,17 +743,17 @@ public class Main {
 						} else if (comandos.get(0).equals("ls")) { // Comando de listar arquivos - ls
 							comandoLs(comandos);
 		        			} else if (comandos.get(0).equals("cd")) {
-							comandoCd(comandos);
+							comandoCd(comandos, false);
 		        			} else if (comandos.get(0).equals("cp") || comandos.get(0).equals("mv")) { // Comando para copiar arquivos - cp
-							comandosCpMv(comandos);
+							comandosCpMv(comandos, false);
 						} else if (comandos.get(0).equals("touch")) {
-							comandoTouch(comandos);
+							comandoTouch(comandos, false);
 		        			} else if (comandos.get(0).equals("mkdir")) {
-							comandoMkdir(comandos);	
+							comandoMkdir(comandos, false);	
 						} else if (comandos.get(0).equals("rm")) {
 							comandoRm(comandos);
 						} else if (comandos.get(0).equals("cat")) {
-							comandoCat(comandos);
+							comandoCat(comandos, false);
 						} else if (comandos.get(0).equals("pwd")) {
 							comandoPwd();
 						} else if (comandos.get(0).equals("clear")) { // Comando clear
