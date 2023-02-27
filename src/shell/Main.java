@@ -504,6 +504,10 @@ public class Main {
 	public static void comandoClear () {
 		textpane.setText("");
 	}
+
+	public static void comandoExit () {
+		frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+	}
 	
 	public static void highlight() {
 
@@ -626,7 +630,7 @@ public class Main {
 						} else if (comandos.get(0).equals("clear")) { // Comando clear
 							comandoClear();
 		        			} else if (comandos.get(0).equals("exit")) {
-		        				frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+							comandoExit();
 		        			} else {
 		        				adicionaMensagem(textpane, "Comando inválido\n");
 		        			}
