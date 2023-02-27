@@ -559,7 +559,10 @@ public class Main {
 		        			} else if (comandos.get(0).equals("mkdir")) {
 							
 						} else if (comandos.get(0).equals("rm")) {
-							
+							String nome_arquivo = comandos.get(1);
+							if (nome_arquivo.charAt(0) == '~') nome_arquivo = formataPastaUsuario(nome_arquivo);
+							File arquivo = new File(nome_arquivo);
+							arquivo.delete();
 						} else if (comandos.get(0).equals("cat")) {
 		        				if (comandos.size() == 1) {
 		        					adicionaMensagem(textpane, "O nome do arquivo deve ser passado como parâmetro\n");
