@@ -1,3 +1,0 @@
-Main.java
-ok
-ls.txt

@@ -183,6 +183,11 @@ public class Main {
 		if (caminho.equals("..") || caminho.equals("../")) {
 			lista_diretorios.add("..");
 			return lista_diretorios;
+		} else if (caminho.equals("~") || caminho.equals("~/")) {
+			lista_diretorios.add("/");
+			lista_diretorios.add("home");
+			lista_diretorios.add(System.getProperty("user.name"));
+			return lista_diretorios;
 		}
 		if (array_caminho.length == 1) {
 			caminho = diretorio;
@@ -250,7 +255,7 @@ public class Main {
 			diretorio = "/";
 			lista_diretorios.remove(0);
 			return cd(lista_diretorios, diretorio_atual, verifica_arquivo);
-		}else if (novo_dir.equals("~") || novo_dir.equals("~/")) {
+		} else if (novo_dir.equals("~") || novo_dir.equals("~/")) {
 			diretorio = "/home/" + System.getProperty("user.name");
 			lista_diretorios.remove(0);
 			return cd(lista_diretorios, diretorio_atual, verifica_arquivo);
@@ -274,12 +279,24 @@ public class Main {
 		return false;
 	}
 
+	public static String apenasDiretorio (String caminho) {
+		String apenas_diretorio = "";
+		String array_caminho[] = caminho.split("/");
+		for (int i = 0; i < array_caminho.length - 1; i++) {
+			apenas_diretorio = apenas_diretorio + array_caminho[i] + "/";
+		}
+		return apenas_diretorio;
+	}
+
 	public static void cp_mv (String caminho_arquivo, String caminho_destino, String nome_arquivo, boolean copiar) throws IOException {
+		String array_caminho_arquivo[] = caminho_arquivo.split("/");
+		String array_caminho_destino[] = caminho_destino.split("/");
+		if (array_caminho_arquivo.length == 1) caminho_arquivo = diretorio + "/" + caminho_arquivo;
+		if (array_caminho_destino.length == 1) caminho_destino = diretorio + "/" + caminho_destino;
 		if (caminho_arquivo.charAt(0) == '~') caminho_arquivo = formataPastaUsuario(caminho_arquivo);
 		if (caminho_destino.charAt(0) == '~') caminho_destino = formataPastaUsuario(caminho_destino) + "/" + nome_arquivo;
 		if (caminho_destino.equals(diretorio)) caminho_destino = caminho_destino + "/" + nome_arquivo;
-		File arquivo_origem = null;
-		arquivo_origem = new File(caminho_arquivo);
+		File arquivo_origem = new File(caminho_arquivo);
 		File arquivo_destino = new File(caminho_destino);
 		if (copiar) Files.copy(arquivo_origem.toPath(), arquivo_destino.toPath());
 		else Files.move(arquivo_origem.toPath(), arquivo_destino.toPath());
@@ -295,16 +312,16 @@ public class Main {
 		String conteudo_arquivo = "";
 		try {
 			br = new BufferedReader(new FileReader(new File(caminho_arquivo)));
+			if (arquivo_encontrado) {
+				while (br.ready()) {
+					conteudo_arquivo = conteudo_arquivo + br.readLine() + "\n";
+				}
+			}
+			br.close();
 		} catch (Exception e) {
 			adicionaMensagem(textpane, "Arquivo não encontrado\n");
 		        arquivo_encontrado = false;
 		}
-		if (arquivo_encontrado) {
-			while (br.ready()) {
-				conteudo_arquivo = conteudo_arquivo + br.readLine() + "\n";
-			}
-		}
-		br.close();
 		return conteudo_arquivo;
 	}
 
@@ -360,7 +377,6 @@ public class Main {
 			adicionaMensagem(textpane, "O diretório informado não existe\n");
 		}
 	}
-
 
 	
 	public static void highlight() {
@@ -490,6 +506,8 @@ public class Main {
 							} else {
 								String caminho_arquivo = comandos.get(1);
 								String caminho_diretorio = comandos.get(2);
+								String array_caminho_arquivo[] = caminho_arquivo.split("/");
+								String array_caminho_diretorio[] = caminho_diretorio.split("/");
 								String nome_arquivo = nomeArquivoDiretorio(caminho_arquivo);
 								ArrayList<Boolean> lista_existem = new ArrayList<>();
 								lista_existem = existemArquivoDiretorio(caminho_arquivo, caminho_diretorio);
@@ -499,8 +517,22 @@ public class Main {
 									adicionaMensagem(textpane, "O arquivo informado não existe\n");
 								} else {
 									if (arquivo_existe && diretorio_existe) {
-										if (comandos.get(0).equals("cp")) cp_mv(caminho_arquivo, caminho_diretorio, nome_arquivo, true);
-										else cp_mv(caminho_arquivo, caminho_diretorio, nome_arquivo, false);
+										if (comandos.get(0).equals("cp")) {
+											cp_mv(caminho_arquivo, caminho_diretorio, nome_arquivo, true);
+										} else {
+											System.out.println("Caminho diretório mv: " + caminho_diretorio);
+											cp_mv(caminho_arquivo, caminho_diretorio, nome_arquivo, false);
+										}
+									} else if (arquivo_existe && array_caminho_diretorio.length == 1) {
+										if (comandos.get(0).equals("mv")) {
+											String novo_nome = comandos.get(2);
+											File arquivo  = new File(caminho_arquivo);
+											caminho_diretorio = apenasDiretorio(caminho_diretorio);
+											System.out.println("Novo nome: " + novo_nome);
+											System.out.println("Caminho diretório: " + caminho_diretorio);
+											cp_mv(caminho_arquivo, caminho_diretorio, novo_nome, false);
+											//Files.move(arquivo.toPath(), arquivo.toPath().resolveSibling(novo_nome));
+										}
 									}
 								}
 							}
@@ -511,7 +543,7 @@ public class Main {
 		        					adicionaMensagem(textpane, "O comando touch recebe apenas um argumento\n");
 		        				} else {
 		        					String nome_novo_arquivo = comandos.get(1);
-		        					File novo_arquivo = new File(diretorio + nome_novo_arquivo);
+		        					File novo_arquivo = new File(diretorio + "/" + nome_novo_arquivo);
 		        					novo_arquivo.createNewFile();
 		        				}
 		        			} else if (comandos.get(0).equals("mkdir")) {
