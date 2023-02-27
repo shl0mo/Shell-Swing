@@ -294,8 +294,8 @@ public class Main {
 		if (array_caminho_arquivo.length == 1) caminho_arquivo = diretorio + "/" + caminho_arquivo;
 		if (array_caminho_destino.length == 1) caminho_destino = diretorio + "/" + caminho_destino;
 		if (caminho_arquivo.charAt(0) == '~') caminho_arquivo = formataPastaUsuario(caminho_arquivo);
-		if (caminho_destino.charAt(0) == '~') caminho_destino = formataPastaUsuario(caminho_destino) + "/" + nome_arquivo;
-		if (caminho_destino.equals(diretorio)) caminho_destino = caminho_destino + "/" + nome_arquivo;
+		if (caminho_destino.charAt(0) == '~') caminho_destino = formataPastaUsuario(caminho_destino);
+		caminho_destino = caminho_destino + "/" + nome_arquivo;
 		File arquivo_origem = new File(caminho_arquivo);
 		File arquivo_destino = new File(caminho_destino);
 		if (copiar) Files.copy(arquivo_origem.toPath(), arquivo_destino.toPath());
@@ -513,6 +513,10 @@ public class Main {
 								lista_existem = existemArquivoDiretorio(caminho_arquivo, caminho_diretorio);
 								boolean arquivo_existe = lista_existem.get(0);
 								boolean diretorio_existe = lista_existem.get(1);
+								if (array_caminho_diretorio.length == 1 && listaDiretorios(diretorio).contains(comandos.get(2))) {
+									diretorio_existe = true;
+									caminho_diretorio = diretorio + "/" + comandos.get(2);
+								}
 								if (!arquivo_existe) {
 									adicionaMensagem(textpane, "O arquivo informado não existe\n");
 								} else {
