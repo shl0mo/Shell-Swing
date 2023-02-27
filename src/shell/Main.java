@@ -355,8 +355,9 @@ public class Main {
 		return diretorio;
 	}
 	
-	public static void saidaLs (boolean _a, String caminho_novo_arquivo) throws BadLocationException, IOException {
-		String listagem = ls(_a);
+	public static void saidaLs_Pwd (boolean _a, String caminho_novo_arquivo, boolean pwd) throws BadLocationException, IOException {
+		String conteudo = ls(_a);
+		if (pwd) conteudo = pwd();
 		String array_caminho_novo_arquivo[] = caminho_novo_arquivo.split("/");
 		String nome_arquivo = nomeArquivoDiretorio(caminho_novo_arquivo);
 		String caminho_diretorio = "";
@@ -374,7 +375,7 @@ public class Main {
 			File novo_arquivo = new File(caminho_diretorio + "/" + nome_arquivo);
 			novo_arquivo.createNewFile();
 			FileWriter fw = new FileWriter(novo_arquivo);
-			fw.write(listagem);
+			fw.write(conteudo);
 			fw.close();
 		} else {
 			adicionaMensagem(textpane, "O diretório informado não existe\n");
@@ -603,11 +604,14 @@ public class Main {
 								}
 							} else if (comandos.get(0).equals("ls") && comandos.size() == 3 && comandos.get(1).equals(">")) { // Se o comando a ter a saída salva em um arquivo for o ls, sem a flag -a
 								String caminho_novo_arquivo = comandos.get(2);
-								saidaLs(true, caminho_novo_arquivo);
+								saidaLs_Pwd(true, caminho_novo_arquivo, false);
 
 							} else if (comandos.get(0).equals("ls") && comandos.size() == 4 && comandos.get(1).equals("-a") && comandos.get(2).equals(">")) { // Se o comando a ter a saída salva em um arquivo for o ls, com a flag -a
 								String caminho_novo_arquivo = comandos.get(3);
-								saidaLs(false, caminho_novo_arquivo);
+								saidaLs_Pwd(false, caminho_novo_arquivo, false);
+							} else if (comandos.get(0).equals("pwd")) { // Se o comando a ter a saída salva no arquivo for o pwd
+								String caminho_novo_arquivo = comandos.get(2);
+								saidaLs_Pwd(false, caminho_novo_arquivo, true);
 							} else {
 								adicionaMensagem(textpane, "Para o redirecionador de saída (>), o operador da esquerda deve ser o comando cat ou o ls e o da direita o nome ou caminho e nome de um novo arquivo\n");
 							}
