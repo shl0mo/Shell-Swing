@@ -406,6 +406,45 @@ public class Main {
 		}
 	}
 
+	public static void comandosCpMv (ArrayList<String> comandos) throws BadLocationException, IOException {
+		if (comandos.size() <= 2) {
+			adicionaMensagem(textpane, "Especifique ambos o arquivo e o diretório de origem\n");
+		} else {
+			String caminho_arquivo = comandos.get(1);
+			String caminho_diretorio = comandos.get(2);
+			String array_caminho_arquivo[] = caminho_arquivo.split("/");
+			String array_caminho_diretorio[] = caminho_diretorio.split("/");
+			String nome_arquivo = nomeArquivoDiretorio(caminho_arquivo);
+			ArrayList<Boolean> lista_existem = new ArrayList<>();
+			lista_existem = existemArquivoDiretorio(caminho_arquivo, caminho_diretorio);
+			boolean arquivo_existe = lista_existem.get(0);
+			boolean diretorio_existe = lista_existem.get(1);
+			if (array_caminho_diretorio.length == 1 && listaDiretorios(diretorio).contains(comandos.get(2))) {
+				System.out.println("Lista diretórios: " + listaDiretorios(diretorio).toString());
+				diretorio_existe = true;
+				caminho_diretorio = diretorio + "/" + comandos.get(2);
+			}
+			if (!arquivo_existe) {
+				adicionaMensagem(textpane, "O arquivo informado não existe\n");
+			} else {
+				if (arquivo_existe && diretorio_existe) {
+					if (comandos.get(0).equals("cp")) {
+						cp_mv(caminho_arquivo, caminho_diretorio, nome_arquivo, true);
+					} else {
+						cp_mv(caminho_arquivo, caminho_diretorio, nome_arquivo, false);
+					}
+				} else if (arquivo_existe && array_caminho_diretorio.length == 1) {
+					if (comandos.get(0).equals("mv")) {
+						String novo_nome = comandos.get(2);
+						File arquivo  = new File(caminho_arquivo);
+						caminho_diretorio = apenasDiretorio(caminho_diretorio);
+						cp_mv(caminho_arquivo, caminho_diretorio, novo_nome, false);
+					}
+				}
+			}
+		}
+	}
+
 	
 	public static void highlight() {
 
@@ -514,46 +553,7 @@ public class Main {
 		        			} else if (comandos.get(0).equals("cd")) {
 							comandoCd(comandos);
 		        			} else if (comandos.get(0).equals("cp") || comandos.get(0).equals("mv")) { // Comando para copiar arquivos - cp
-							if (comandos.size() <= 2) {
-								adicionaMensagem(textpane, "Especifique ambos o arquivo e o diretório de origem\n");
-							} else {
-								String caminho_arquivo = comandos.get(1);
-								String caminho_diretorio = comandos.get(2);
-								String array_caminho_arquivo[] = caminho_arquivo.split("/");
-								String array_caminho_diretorio[] = caminho_diretorio.split("/");
-								String nome_arquivo = nomeArquivoDiretorio(caminho_arquivo);
-								ArrayList<Boolean> lista_existem = new ArrayList<>();
-								lista_existem = existemArquivoDiretorio(caminho_arquivo, caminho_diretorio);
-								boolean arquivo_existe = lista_existem.get(0);
-								boolean diretorio_existe = lista_existem.get(1);
-								if (array_caminho_diretorio.length == 1 && listaDiretorios(diretorio).contains(comandos.get(2))) {
-									System.out.println("Lista diretórios: " + listaDiretorios(diretorio).toString());
-									diretorio_existe = true;
-									caminho_diretorio = diretorio + "/" + comandos.get(2);
-								}
-								if (!arquivo_existe) {
-									adicionaMensagem(textpane, "O arquivo informado não existe\n");
-								} else {
-									if (arquivo_existe && diretorio_existe) {
-										if (comandos.get(0).equals("cp")) {
-											cp_mv(caminho_arquivo, caminho_diretorio, nome_arquivo, true);
-										} else {
-											System.out.println("Caminho diretório mv: " + caminho_diretorio);
-											cp_mv(caminho_arquivo, caminho_diretorio, nome_arquivo, false);
-										}
-									} else if (arquivo_existe && array_caminho_diretorio.length == 1) {
-										if (comandos.get(0).equals("mv")) {
-											String novo_nome = comandos.get(2);
-											File arquivo  = new File(caminho_arquivo);
-											caminho_diretorio = apenasDiretorio(caminho_diretorio);
-											System.out.println("Novo nome: " + novo_nome);
-											System.out.println("Caminho diretório: " + caminho_diretorio);
-											cp_mv(caminho_arquivo, caminho_diretorio, novo_nome, false);
-											//Files.move(arquivo.toPath(), arquivo.toPath().resolveSibling(novo_nome));
-										}
-									}
-								}
-							}
+							comandosCpMv(comandos);
 						} else if (comandos.get(0).equals("touch")) {
 		        				if (comandos.size() == 1) {
 		        					adicionaMensagem(textpane, "O nome do arquivo deve ser passado como parâmetro\n");
