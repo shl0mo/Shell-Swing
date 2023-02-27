@@ -428,6 +428,31 @@ public class Main {
 									cp_mv(caminho_arquivo_cat, caminho_diretorio, nome_arquivo, true);
 								}
 							} else if (comandos.get(0).equals("ls") && comandos.size() == 3 && comandos.get(1).equals(">")) { // Se o comando a ter a saída salva em um arquivo for o ls, sem a flag -a
+								String listagem = ls(true);
+								String caminho_novo_arquivo = comandos.get(2);
+								String array_caminho_novo_arquivo[] = caminho_novo_arquivo.split("/");
+								String nome_arquivo = nomeArquivoDiretorio(caminho_novo_arquivo);
+								String caminho_diretorio = "";
+								if (array_caminho_novo_arquivo.length == 1) {
+									nome_arquivo = comandos.get(2);
+									caminho_diretorio = diretorio;
+								} else {
+									for (int i = 0; i < array_caminho_novo_arquivo.length - 1; i++) {
+										caminho_diretorio = caminho_diretorio + array_caminho_novo_arquivo[i] + "/";
+									}
+								}
+								//System.out.println("CAMINHO DIRETORIO _ NOME ARQUIVO: " + caminho_diretorio + nome_arquivo);
+								ArrayList<Boolean> lista_existem = existemArquivoDiretorio("", caminho_novo_arquivo);
+								boolean diretorio_existe = lista_existem.get(1);
+								if (diretorio_existe) {
+									File novo_arquivo = new File(caminho_diretorio + "/" + nome_arquivo);
+									novo_arquivo.createNewFile();
+									FileWriter fw = new FileWriter(novo_arquivo);
+									fw.write(listagem);
+									fw.close();
+								} else {
+									adicionaMensagem(textpane, "O diretório informado não existe\n");
+								}
 
 							} else if (comandos.get(0).equals("ls") && comandos.size() == 4 && comandos.get(1).equals("-a") && comandos.get(2).equals(">")) { // Se o comando a ter a saída salva em um arquivo for o ls, com a flag -a
 								
@@ -493,6 +518,8 @@ public class Main {
 		        				} else if (comandos.size() == 2) {
 								String diretorio_atual = diretorio;
 								String caminho_arquivo = comandos.get(1);
+								String array_caminho_arquivo[] = caminho_arquivo.split("/");
+								if (array_caminho_arquivo.length == 1) caminho_arquivo = diretorio + caminho_arquivo;
 								String conteudo_arquivo = aplicaCat(caminho_arquivo);
 								adicionaMensagem(textpane, conteudo_arquivo + "\n");
 								diretorio = diretorio_atual;
