@@ -574,7 +574,7 @@ public class Main {
 							} else {
 								String nome_arquivo = comandos.get(1);
 								if (nome_arquivo.charAt(0) == '~') nome_arquivo = formataPastaUsuario(nome_arquivo);
-								File arquivo = new File(nome_arquivo);
+								File arquivo = new File(diretorio + "/" + nome_arquivo);
 								arquivo.delete();
 							}
 						} else if (comandos.get(0).equals("cat")) {
