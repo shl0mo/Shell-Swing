@@ -853,7 +853,7 @@ public class Main {
 								adicionaMensagem(textpane, "Para o redirecionador de saída (>), o operador da esquerda deve ser o comando cat ou o ls e o da direita o nome ou caminho e nome de um novo arquivo\n");
 							}
 						} else if (comandos.contains("<")) { // Redirecionamento de entrada
-							if (comandos.get(0).equals("cp") && comandos.get(1).equals("<") && comandos.size() == 3) {
+							if ((comandos.get(0).equals("cp") || comandos.get(0).equals("mv")) && comandos.get(1).equals("<") && comandos.size() == 3) {
 								String nome_arquivo = comandos.get(2);
 								String array_nome_arquivo[] = nome_arquivo.split("/");
 								if (array_nome_arquivo.length == 1) {
@@ -870,9 +870,48 @@ public class Main {
 									if (lista_conteudo.size() == 0 || lista_conteudo.size() == 1 || lista_conteudo.size() > 2) {
 										adicionaMensagem(textpane, "O comando cp recebe dois argumentos\n");
 									} else {
-										lista_conteudo.add(0, "cp");
+										if (comandos.get(0).equals("cp")) lista_conteudo.add(0, "cp");
+										else lista_conteudo.add(0, "mv");
 										String _nome_arquivo = nomeArquivoDiretorio(lista_conteudo.get(1));
-										cp_mv(lista_conteudo.get(1), lista_conteudo.get(2), _nome_arquivo, true);
+										if (comandos.get(0).equals("cp")) cp_mv(lista_conteudo.get(1), lista_conteudo.get(2), _nome_arquivo, true);
+										else cp_mv(lista_conteudo.get(1), lista_conteudo.get(2), _nome_arquivo, false);
+									}
+								} else {
+									adicionaMensagem(textpane, "O arquivo informado não existe\n");
+								}
+							} else if ((comandos.get(0).equals("cd") || comandos.get(0).equals("touch") || comandos.get(0).equals("mkdir") || comandos.get(0).equals("rm") || comandos.get(0).equals("cat")) && comandos.get(1).equals("<") && comandos.size() == 3) {
+								String nome_arquivo = comandos.get(2);
+								String array_nome_arquivo[] = nome_arquivo.split("/");
+								if (array_nome_arquivo.length == 1) {
+									nome_arquivo = diretorio + "/" + nome_arquivo;
+								} else if (array_nome_arquivo[0].equals("~")) {
+									nome_arquivo = "/home/" + System.getProperty("user.name") + "/" + array_nome_arquivo[1];
+								}
+								File arquivo = new File(nome_arquivo);
+								if (arquivo.exists()) {
+									String conteudo_arquivo = cat(nome_arquivo);
+									String array_conteudo_arquivo[] = conteudo_arquivo.split(" ");
+									ArrayList<String> lista_conteudo = listaSemEspacos(array_conteudo_arquivo);
+									removeUltimoEnterLista(lista_conteudo);
+									if (lista_conteudo.size() == 0 || lista_conteudo.size() > 1) {
+										adicionaMensagem(textpane, "O comando recebe um argumento\n");
+									} else {
+										if (comandos.get(0).equals("cd")) {
+											lista_conteudo.add(0, "cd");
+											comandoCd(lista_conteudo, false);
+										} else if (comandos.get(0).equals("touch")) {
+											lista_conteudo.add(0, "touch");
+											comandoTouch(lista_conteudo, false);
+										} else if (comandos.get(0).equals("mkdir")) {
+											lista_conteudo.add(0, "mkdir");
+											comandoMkdir(lista_conteudo, false);
+										} else if (comandos.get(0).equals("rm")) {
+											lista_conteudo.add(0, "rm");
+											comandoRm(lista_conteudo);
+										} else if (comandos.get(0).equals("cat")) {
+											lista_conteudo.add(0, "cat");
+											comandoCat(lista_conteudo, false);
+										}
 									}
 								} else {
 									adicionaMensagem(textpane, "O arquivo informado não existe\n");
