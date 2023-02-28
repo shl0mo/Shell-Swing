@@ -51,6 +51,7 @@ public class Main {
 	static int altura_janela = 500;
 	static String diretorio = System.getProperty("user.dir");
 	static String resultado = "";
+	static ArrayList<String> copia_comandos = new ArrayList<>();
 	
 	public static void main (String [] args) throws BadLocationException {
 		frame = new JFrame("Shell");
@@ -463,7 +464,19 @@ public class Main {
 			return false;
 		} else {
 			String nome_novo_arquivo = comandos.get(1);
-		        File novo_arquivo = new File(diretorio + "/" + nome_novo_arquivo);
+			String array_nome_novo_arquivo[] = nome_novo_arquivo.split("/");
+			if (array_nome_novo_arquivo.length == 1) {
+				nome_novo_arquivo = diretorio + "/" + nome_novo_arquivo;
+			} else if (array_nome_novo_arquivo[0].equals("~")) {
+				nome_novo_arquivo = "/home/" + System.getProperty("user.name") + "/" + array_nome_novo_arquivo[1];
+				System.out.println("Esse caso: " + nome_novo_arquivo);
+			}
+			File novo_arquivo = new File(apenasDiretorio(nome_novo_arquivo));
+			if (!novo_arquivo.exists()) {
+				adicionaMensagem(textpane, "Caminho inválido\n");
+				return false;
+			}
+			novo_arquivo = new File(nome_novo_arquivo);
 		        novo_arquivo.createNewFile();
 			return true;
 		}
@@ -662,12 +675,15 @@ public class Main {
 								adicionaMensagem(textpane, "Para executar arquivos em background, o caractere & deve ser o último do comando\n");	
 							} else {
 								comandos.remove("&");
+								for (String c : comandos) {
+									copia_comandos.add(c);
+								}
 								if (comandos.get(0).equals("ls")) { // Comando de listar arquivos - ls
 									Thread t = new Thread(new Runnable() {
 										@Override
 										public void run() {
 											try {
-												comandoLs(comandos);
+												comandoLs(copia_comandos);
 											} catch (Exception e) {
 												e.printStackTrace();
 											}
@@ -679,7 +695,7 @@ public class Main {
 										@Override
 										public void run() {
 											try {
-												comandoCd(comandos, false);
+												comandoCd(copia_comandos, false);
 												System.out.println("Thread finalizou");
 											} catch (Exception e) {
 												e.printStackTrace();
@@ -692,7 +708,7 @@ public class Main {
 										@Override
 										public void run() {
 											try {
-												comandosCpMv(comandos, false);
+												comandosCpMv(copia_comandos, false);
 											} catch (Exception e) {
 												e.printStackTrace();
 											}
@@ -704,7 +720,7 @@ public class Main {
 										@Override
 										public void run() {
 											try {
-												comandoTouch(comandos, false);
+												comandoTouch(copia_comandos, false);
 											} catch (Exception e) {
 												e.printStackTrace();
 											}
@@ -716,8 +732,7 @@ public class Main {
 										@Override
 										public void run() {
 											try {
-												Thread.currentThread().sleep(3000);
-												comandoMkdir(comandos, false);
+												comandoMkdir(copia_comandos, false);
 											} catch (Exception e) {
 												e.printStackTrace();
 											}
@@ -729,7 +744,7 @@ public class Main {
 										@Override
 										public void run() {
 											try {
-												comandoRm(comandos);
+												comandoRm(copia_comandos);
 											} catch (Exception e) {
 												e.printStackTrace();
 											}
@@ -741,7 +756,7 @@ public class Main {
 										@Override
 										public void run() {
 											try {
-												comandoCat(comandos, false);
+												comandoCat(copia_comandos, false);
 											} catch (Exception e) {
 												e.printStackTrace();
 											}
@@ -777,6 +792,7 @@ public class Main {
 										@Override
 										public void run() {
 											try {
+												//Thread.sleep(3000);
 												comandoExit();
 											} catch (Exception e) {
 												e.printStackTrace();
@@ -786,23 +802,7 @@ public class Main {
 									t.start();
 				        			} else {
 				        				adicionaMensagem(textpane, "Comando inválido\n");
-		        					}
-								/*String comando_linha = "";
-								for (int i = 0; i < comandos.size() - 1; i++) {
-									comando_linha = comando_linha + comandos.get(i);
-									if (i != comandos.size() - 2) comando_linha = comando_linha + " ";
-								}
-								try {
-									Runtime r = Runtime.getRuntime();
-									Process p = r.exec(comando_linha);
-									BufferedReader br_linha = new BufferedReader(new InputStreamReader(p.getInputStream()));
-									br_linha.lines().forEach(System.out::println);
-									BufferedReader br_erro = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-									br_erro.lines().forEach(System.out::println);
-								} catch (Exception e) {
-									adicionaMensagem(textpane, "Erro ao tentar executar o comando em segundo plano\n");
-								}*/
-								
+		        					}	
 							}
 						} else if (comandos.contains(">")) { // Salva a saída de um comando em um arquivo
 							if (comandos.get(0).equals("cat") && comandos.size() == 4 && comandos.get(2).equals(">")) { // Se o comando a ter a saída salva em um arquivo for o cat
