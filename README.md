@@ -3,7 +3,7 @@ Um terminal implementado com Java e Swing capaz de executar alguns comandos linu
 
 ![shell](./shell.gif)
 
-Comandos interpretados
+## Comandos interpretados
 
 ```
 cd
